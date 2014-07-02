@@ -15,6 +15,7 @@
 #include <QCloseEvent>
 #include <QFile>
 #include <QSettings>
+#include <QDir>
 
 //=================================================================================================
 
@@ -31,6 +32,23 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 //-------------------------------------------------------------------------------------------------
 {
     //---------------------------------------------------------------
+    // Initialize the variables
+    m_nTimer            = 0;
+    m_bProcessFinished  = false;
+
+    m_qsLang            = "";
+
+    m_qsCurrentDir      = QDir::currentPath();
+
+    m_qsCurrentDir.replace( '/', '\\' );
+    if( m_qsCurrentDir.right(1).compare("\\") == 0 )
+    {
+        m_qsCurrentDir = m_qsCurrentDir.left(m_qsCurrentDir.length()-1);
+    }
+
+    obProcessDoc = new QDomDocument( "StarterProcess" );
+
+    //---------------------------------------------------------------
     // Initialize the GUI
     ui->setupUi(this);
 
@@ -43,19 +61,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 
-    QFile   file( "splash.png" );
+    QSettings   obPrefFile( "settings.ini", QSettings::IniFormat );
+    QString     qsFile = obPrefFile.value( QString::fromAscii( "Settings/Background" ), "" ).toString();
+    QFile       file( QString("%1\\%2").arg(m_qsCurrentDir).arg(qsFile) );
 
     if( file.exists() )
     {
-        ui->frmMain->setStyleSheet( "background: url(splash.png);" );
+        ui->frmMain->setStyleSheet( QString( "QFrame { border-image: url(%1); }" ).arg(qsFile) );
     }
 
-    //---------------------------------------------------------------
-    // Initialize the variables
-    m_nTimer            = 0;
-    m_bProcessFinished  = false;
-
-    m_qsLang            = "";
+    ui->lblProgressText->setStyleSheet( "QLabel { border-image: url(none); }" );
 
     //---------------------------------------------------------------
     // Start the application process with the timer
@@ -146,7 +161,7 @@ void MainWindow::processMain()
 bool MainWindow::_checkEnvironment()
 //-------------------------------------------------------------------------------------------------
 {
-    _progressInit( 3, tr("Checking environment ...") );
+    _progressInit( 6, tr("Checking environment ...") );
 
     _progressStep();
 
@@ -161,7 +176,7 @@ bool MainWindow::_checkEnvironment()
                                  "or contact the application provider.") );
         return false;
     }
-    if( !_readSettings() )
+    if( !readSettings() )
     {
         QMessageBox::warning( this, tr("Warning"),
                               tr("The 'settings.ini' file content is corrupt.\n\n"
@@ -185,14 +200,83 @@ bool MainWindow::_checkEnvironment()
 
     _progressStep();
 
+    QDir    qdBackup( QString("%1\\backup").arg(m_qsCurrentDir) );
+
+    if( !qdBackup.exists() )
+    {
+        if( !qdBackup.mkpath( QString("%1\\backup").arg(m_qsCurrentDir) ) )
+        {
+            QMessageBox::warning( this, tr("Warning"),
+                                  tr("The 'backup' directory not exists and can not be created.\n\n"
+                                     "Please create the backup directory in the home directory"
+                                     "of this application and restart it again.") );
+            return false;
+        }
+    }
+
+    _progressStep();
+
+    QDir    qdDownload( QString("%1\\download").arg(m_qsCurrentDir) );
+
+    if( !qdDownload.exists() )
+    {
+        if( !qdDownload.mkpath( QString("%1\\download").arg(m_qsCurrentDir) ) )
+        {
+            QMessageBox::warning( this, tr("Warning"),
+                                  tr("The 'download' directory not exists and can not be created.\n\n"
+                                     "Please create the backup directory in the home directory"
+                                     "of this application and restart it again.") );
+            return false;
+        }
+    }
+
+    _progressStep();
+
+    if( !_readProcessXML() )
+    {
+        return false;
+    }
+
+    _progressStep();
+
     return true;
 }
 //=================================================================================================
-// _readSettings
+// _readProcessXML
 //-------------------------------------------------------------------------------------------------
 //
 //-------------------------------------------------------------------------------------------------
-bool MainWindow::_readSettings()
+bool MainWindow::_readProcessXML()
+//-------------------------------------------------------------------------------------------------
+{
+    QFile file( QString("process.xml") );
+
+    if( !file.open(QIODevice::ReadOnly) )
+    {
+        QMessageBox::warning( this, tr("Warning"), tr("Unable to read 'process.xml' file.") );
+        return false;
+    }
+
+    QString      qsErrorMsg  = "";
+    int          inErrorLine = 0;
+
+    file.seek( 0 );
+    if( !obProcessDoc->setContent( &file, &qsErrorMsg, &inErrorLine ) )
+    {
+        QMessageBox::warning( this, tr("Warning"), tr( "Error occured during parsing file: process.xml\n\nError in line %2: %3" ).arg( inErrorLine ).arg( qsErrorMsg ) );
+        file.close();
+        return false;
+    }
+    file.close();
+
+    return true;
+}
+//=================================================================================================
+// readSettings
+//-------------------------------------------------------------------------------------------------
+//
+//-------------------------------------------------------------------------------------------------
+bool MainWindow::readSettings()
 //-------------------------------------------------------------------------------------------------
 {
     QSettings  obPrefFile( "settings.ini", QSettings::IniFormat );

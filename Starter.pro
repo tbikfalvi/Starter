@@ -4,25 +4,20 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
-
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = Starter
-TEMPLATE = app
-
+QT          += core gui xml
 TARGET       = Starter
+TEMPLATE     = app
 RC_FILE      = starter.rc
-
 RESOURCES   += starter.qrc
 
-TRANSLATIONS = starter_en.ts \
-               starter_hu.ts \
+TRANSLATIONS = starter_hu.ts \
                qt_hu.ts
 
-SOURCES += main.cpp\
-        mainwindow.cpp
+SOURCES     += main.cpp \
+               mainwindow.cpp
 
-HEADERS  += mainwindow.h
+HEADERS     += mainwindow.h
 
-FORMS    += mainwindow.ui
+FORMS       += mainwindow.ui

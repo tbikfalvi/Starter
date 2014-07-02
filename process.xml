@@ -1,0 +1,30 @@
+<StarterProcess>
+    <information version="1.0.0">
+        <project name="Belenus Application system" version="1.2.0" />
+    </information>
+
+    <environment home="c:\Program Files\belenus">
+        <directory name="lang">
+            <file name="BelenusUpdater_hu.qm" />
+            <file name="belenus_hu.qm" />
+            <file name="brv_hu.qm" />
+            <file name="dbbackup_hu.qm" />
+            <file name="dbtool_hu.qm" />
+            <file name="qt_hu.qm" />
+        </directory>
+        <directory name="resources">
+            <file name="splash.png" />
+        </directory>
+        <file name="libgcc_s_dw2-1.dll" />
+        <file name="belenus.exe" />
+        <file name="belenus.ini" />
+        <file name="DBBackup.exe" />
+        <file name="libmySQL.dll" />
+        <file name="mingwm10.dll" />
+        <file name="QtCore4.dll" />
+        <file name="QtGui4.dll" />
+        <file name="QtNetwork4.dll" />
+        <file name="QtSql4.dll" />
+        <file name="ReportViewer.exe" />
+    </environment>
+</StarterProcess>
