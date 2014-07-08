@@ -1,9 +1,24 @@
-<StarterProcess>
+<Process>
+
     <information version="1.0.0">
-        <project name="Belenus Application system" version="1.2.0" />
+        <project name="Belenus Application system" version="1.2.1" />
     </information>
 
-    <environment home="c:\Program Files\belenus">
+    <download>
+        <file path="http://download.bikfalvi.hu/belenus/BelenusApps_v_1_2_2.zip" uncompress="yes" />
+    </download>
+
+    <backup path="c:/Program Files/belenus">
+        <file name="belenus.exe" />
+        <file name="ReportViewer.exe" />
+    </backup>
+
+    <update>
+        <file src="belenus.exe" dst="c:/Program Files/belenus/belenus.exe" />
+        <file src="ReportViewer.exe" dst="c:/Program Files/belenus/ReportViewer.exe" />
+    </update>
+
+    <directory_check home="c:/Program Files/belenus">
         <directory name="lang">
             <file name="BelenusUpdater_hu.qm" />
             <file name="belenus_hu.qm" />
@@ -26,5 +41,6 @@
         <file name="QtNetwork4.dll" />
         <file name="QtSql4.dll" />
         <file name="ReportViewer.exe" />
-    </environment>
-</StarterProcess>
+    </directory_check>
+
+</Process>
