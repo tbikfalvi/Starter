@@ -1,49 +1,56 @@
 <Process>
 
-    <information version="1.0.0">
-        <project name="Belenus Application system" version="1.2.1" />
-    </information>
+    <version number="1.0.0">
 
-    <download>
-        <file path="http://download.bikfalvi.hu/belenus/BelenusApps_v_1_2_2.zip" uncompress="yes" />
-    </download>
+        <download>
+        </download>
 
-    <backup path="c:/Program Files/belenus">
-        <file name="belenus.exe" />
-        <file name="ReportViewer.exe" />
-    </backup>
+    </version>
 
-    <update>
-        <file src="belenus.exe" dst="c:/Program Files/belenus/belenus.exe" />
-        <file src="ReportViewer.exe" dst="c:/Program Files/belenus/ReportViewer.exe" />
-    </update>
+    <version number="1.3.0">
 
-    <directory_check home="c:/Program Files/belenus">
-        <directory name="lang">
-            <file name="BelenusUpdater_hu.qm" />
-            <file name="belenus_hu.qm" />
-            <file name="brv_hu.qm" />
-            <file name="dbbackup_hu.qm" />
-            <file name="dbtool_hu.qm" />
-            <file name="qt_hu.qm" />
-        </directory>
-        <directory name="resources">
-            <file name="splash.png" />
-        </directory>
-        <file name="libgcc_s_dw2-1.dll" />
-        <file name="belenus.exe" />
-        <file name="belenus.ini" />
-        <file name="DBBackup.exe" />
-        <file name="libmySQL.dll" />
-        <file name="mingwm10.dll" />
-        <file name="QtCore4.dll" />
-        <file name="QtGui4.dll" />
-        <file name="QtNetwork4.dll" />
-        <file name="QtSql4.dll" />
-        <file name="ReportViewer.exe" />
-    </directory_check>
+        <download>
+            <file path="http://download.bikfalvi.hu/belenus/BelenusApps_v_1_2_2.zip" uncompress="yes" />
+        </download>
 
-    <execute>
-    </execute>
+        <backup path="c:/Program Files/belenus">
+            <file name="belenus.exe" />
+            <file name="ReportViewer.exe" />
+        </backup>
+
+        <update>
+            <file src="belenus.exe" dst="c:/Program Files/belenus/belenus.exe" />
+            <file src="ReportViewer.exe" dst="c:/Program Files/belenus/ReportViewer.exe" />
+        </update>
+
+        <directory_check home="c:/Program Files/belenus">
+            <directory name="lang">
+                <file name="BelenusUpdater_hu.qm" />
+                <file name="belenus_hu.qm" />
+                <file name="brv_hu.qm" />
+                <file name="dbbackup_hu.qm" />
+                <file name="dbtool_hu.qm" />
+                <file name="qt_hu.qm" />
+            </directory>
+            <directory name="resources">
+                <file name="splash.png" />
+            </directory>
+            <file name="libgcc_s_dw2-1.dll" />
+            <file name="belenus.exe" />
+            <file name="belenus.ini" />
+            <file name="DBBackup.exe" />
+            <file name="libmySQL.dll" />
+            <file name="mingwm10.dll" />
+            <file name="QtCore4.dll" />
+            <file name="QtGui4.dll" />
+            <file name="QtNetwork4.dll" />
+            <file name="QtSql4.dll" />
+            <file name="ReportViewer.exe" />
+        </directory_check>
+
+        <execute>
+        </execute>
+
+    </version>
 
 </Process>
