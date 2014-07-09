@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 
     QSettings   obPrefFile( "settings.ini", QSettings::IniFormat );
     QString     qsLangPath  = obPrefFile.value( QString::fromAscii( "Language/Path" ), "" ).toString();
-    QString     qsLang      = obPrefFile.value( QString::fromAscii( "Language/Extension" ), "hu" ).toString();
+    QString     qsLang      = obPrefFile.value( QString::fromAscii( "Language/Extension" ), "en" ).toString();
     int         inWidth     = obPrefFile.value( QString::fromAscii( "Settings/WindowWidth" ), 640 ).toInt();
     int         inHeight    = obPrefFile.value( QString::fromAscii( "Settings/WindowHeight" ), 400 ).toInt();
 

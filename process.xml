@@ -43,4 +43,7 @@
         <file name="ReportViewer.exe" />
     </directory_check>
 
+    <execute>
+    </execute>
+
 </Process>

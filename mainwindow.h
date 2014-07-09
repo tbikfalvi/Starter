@@ -60,10 +60,14 @@ private:
     bool            _readProcessXML();
 
     void            _progressInit( int p_nMax = 100, QString p_qsText = "" );
+    void            _progressValue( int p_nValue );
+    void            _progressMax( int p_nValue );
     void            _progressStep();
     void            _progressText( QString p_qsText = "" );
 
-    bool            _downloadFile(QString p_qsFileName);
+    bool            _downloadFile( QString p_qsFileName );
+
+    void            _log( QString p_qsLogMessage );
 };
 
 #endif // MAINWINDOW_H
