@@ -3,6 +3,10 @@
     <version number="1.0.0">
 
         <download>
+            <file path="http://download.bikfalvi.hu/belenus/BelenusApps_v_1_2_1.zip" uncompress="yes" />
+            <file path="http://download.bikfalvi.hu/belenus/BelenusApps_v_2.zip" uncompress="yes" />
+            <file path="http://download.bikfalvi.hu/belenus/BelenusApps_v_3.zip" uncompress="yes" />
+            <file path="http://download.bikfalvi.hu/belenus/BelenusApps_v_4.zip" uncompress="yes" />
         </download>
 
     </version>
@@ -13,9 +17,9 @@
             <file path="http://download.bikfalvi.hu/belenus/BelenusApps_v_1_2_2.zip" uncompress="yes" />
         </download>
 
-        <backup path="c:/Program Files/belenus">
-            <file name="belenus.exe" />
-            <file name="ReportViewer.exe" />
+        <backup>
+            <file path="c:/Program Files/belenus" name="belenus.exe" />
+            <file path="c:/Program Files/belenus" name="ReportViewer.exe" />
         </backup>
 
         <update>

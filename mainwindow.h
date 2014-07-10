@@ -20,18 +20,23 @@ class MainWindow : public QMainWindow
         ST_CHECK_ENVIRONMENT = 0,
         ST_GET_INFO_FILE,
         ST_READ_INFO_FILE,
+        ST_PARSE_INFO_FILE,
         ST_PROCESS_INFO_FILE,
         ST_DOWNLOAD_FILES,
         ST_UNCOMPRESS_FILES,
         ST_BACKUP_FILES,
         ST_COPY_FILES,
         ST_EXECUTE_APPS,
-        ST_EXIT
+        ST_UPDATE_VERSION_INFO,
+        ST_EXIT,
+        ST_WAIT
     };
 
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+    void setProgressTextColor( QString p_qsTextColor );
 
 private slots:
     void on_pbExit_clicked();
@@ -76,7 +81,10 @@ private:
     bool            _checkEnvironment();
     void            _downloadProcessXML();
     void            _readProcessXML();
-    void            _parseProcessXML();
+    void            _parseProcessXMLVersion();
+    void            _executeVersionProcess();
+    void            _parseProcessXMLVersionDownload();
+    void            _downloadFiles();
 
     void            _progressInit( int p_nMax = 100, QString p_qsText = "" );
     void            _progressValue( int p_nValue );

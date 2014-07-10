@@ -22,7 +22,16 @@
     <property name="spacing">
      <number>1</number>
     </property>
-    <property name="margin">
+    <property name="leftMargin">
+     <number>1</number>
+    </property>
+    <property name="topMargin">
+     <number>1</number>
+    </property>
+    <property name="rightMargin">
+     <number>1</number>
+    </property>
+    <property name="bottomMargin">
      <number>1</number>
     </property>
     <item>
@@ -111,9 +120,6 @@
              <weight>75</weight>
              <bold>true</bold>
             </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">textcolor: rgb(255, 255, 0);</string>
            </property>
            <property name="text">
             <string>...</string>

@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
     QString     qsLang      = obPrefFile.value( QString::fromAscii( "Language/Extension" ), "en" ).toString();
     int         inWidth     = obPrefFile.value( QString::fromAscii( "Settings/WindowWidth" ), 640 ).toInt();
     int         inHeight    = obPrefFile.value( QString::fromAscii( "Settings/WindowHeight" ), 400 ).toInt();
+    QString     qsTextColor = obPrefFile.value( QString::fromAscii( "Settings/Textcolor" ), "000000" ).toString();
 
     poTransSetup = new QTranslator();
     poTransQT = new QTranslator();
@@ -39,6 +40,7 @@ int main(int argc, char *argv[])
     MainWindow wndMain;
 
     wndMain.resize( inWidth, inHeight );
+    wndMain.setProgressTextColor( qsTextColor );
 
     wndMain.show();
 
