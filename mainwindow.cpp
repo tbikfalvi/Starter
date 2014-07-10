@@ -18,6 +18,7 @@
 #include <QDir>
 #include <QUrl>
 #include <QDate>
+#include <QProcess>
 
 //=================================================================================================
 
@@ -236,7 +237,7 @@ void MainWindow::timerEvent(QTimerEvent *)
         case ST_UNCOMPRESS_FILES:
         {
             _progressText( tr("Uncompressing downloaded files ...") );
-            m_teProcessStep = ST_BACKUP_FILES;
+            _uncompressFiles();
             break;
         }
         //---------------------------------------------------------------------
@@ -270,7 +271,7 @@ void MainWindow::timerEvent(QTimerEvent *)
             if( m_nVersion+1 < m_qslVersions.count() )
             {
                 _progressText( tr("Jumping to the next process version ...") );
-                m_qsVersion = m_qslVersions.at( m_nVersion+1 );
+                m_qsVersion = m_qslVersions.at( m_nVersion ).split("|").at(1);
 
                 QSettings  obPrefFile( "settings.ini", QSettings::IniFormat );
 
@@ -500,7 +501,7 @@ void MainWindow::_parseProcessXMLVersion()
 
     for( int i=0; i<obVersions.count(); i++ )
     {
-        m_qslVersions << obVersions.at(i).toElement().attribute("number");
+        m_qslVersions << QString("%1|%2").arg( obVersions.at(i).toElement().attribute("current") ).arg( obVersions.at(i).toElement().attribute("next") );
         _progressStep();
     }
 
@@ -518,7 +519,9 @@ void MainWindow::_executeVersionProcess()
 
     if( m_nVersion < m_qslVersions.count() )
     {
-        if( m_qslVersions.at( m_nVersion ).compare( m_qsVersion ) == 0 )
+        QString qsCurrentVersion = m_qslVersions.at( m_nVersion ).split("|").at(0);
+
+        if( qsCurrentVersion.compare( m_qsVersion ) == 0 )
         {
             _parseProcessXMLVersionDownload();
         }
@@ -569,6 +572,30 @@ void MainWindow::_downloadFiles()
     {
         m_teProcessStep = ST_UNCOMPRESS_FILES;
     }
+}
+//=================================================================================================
+// _uncompressFiles
+//-------------------------------------------------------------------------------------------------
+void MainWindow::_uncompressFiles()
+//-------------------------------------------------------------------------------------------------
+{
+    m_teProcessStep = ST_WAIT;
+
+    _progressInit( m_qslDownload.size(), tr("Uncompressing files ...") );
+
+    for( int i=0; i < m_qslDownload.size(); i++ )
+    {
+        if( m_qslDownload.at( i ).split( "|" ).at( 1 ).compare( "yes" ) == 0 )
+        {
+            if( !_uncompressFile( m_qslDownload.at( i ).split( "|" ).at( 0 ) ) )
+            {
+                m_teProcessStep = ST_EXIT;
+                return;
+            }
+        }
+        _progressStep();
+    }
+    m_teProcessStep = ST_BACKUP_FILES;
 }
 //=================================================================================================
 // _readSettings
@@ -644,7 +671,7 @@ void MainWindow::_progressText(QString p_qsText)
     ui->lblProgressText->setText( p_qsText );
 }
 //=================================================================================================
-// _progressText
+// _downloadFile
 //-------------------------------------------------------------------------------------------------
 bool MainWindow::_downloadFile(QString p_qsFileName)
 {
@@ -700,6 +727,39 @@ bool MainWindow::_downloadFile(QString p_qsFileName)
     return true;
 }
 //=================================================================================================
+// _uncompressFile
+//-------------------------------------------------------------------------------------------------
+bool MainWindow::_uncompressFile(QString p_qsFileName)
+{
+    QUrl        url( p_qsFileName );
+    QFileInfo   fileInfo(url.path());
+
+    if( fileInfo.fileName().isEmpty() )
+        return false;
+
+    //_progressText( tr("Uncompressing %1").arg( fileInfo.fileName() ) );
+
+    QDir::setCurrent( QString( "%1\\download" ).arg( m_qsCurrentDir ) );
+
+    QString     qsFileName      = QString( "%1\\download\\%2" ).arg( m_qsCurrentDir ).arg( fileInfo.fileName() );
+    QString     qsProcess       = QString( "\"%1\\pkzip.exe\" -extract -directories=relative -overwrite=all \"%2\"" ).arg( m_qsCurrentDir ).arg( qsFileName );
+    QProcess   *qpUncompress    = new QProcess(this);
+    int         nRet            = qpUncompress->execute( qsProcess );
+
+    QDir::setCurrent( m_qsCurrentDir );
+
+    if( nRet < 0 )
+    {
+        QMessageBox::warning( this, tr("Warning"),
+                              tr("Error occured when starting process:\n\n%1\n\nError code: %2\n"
+                                 "-2 > Process cannot be started\n"
+                                 "-1 > Process crashed").arg(qsProcess).arg(nRet) );
+        return false;
+    }
+
+    return true;
+}
+//=================================================================================================
 // _progressText
 //-------------------------------------------------------------------------------------------------
 void MainWindow::_slotHttpRequestFinished(int requestId, bool error)
@@ -728,7 +788,7 @@ void MainWindow::_slotHttpRequestFinished(int requestId, bool error)
         m_teProcessStep = ST_WAIT;
         obFile->remove();
         QMessageBox::warning( this, tr("Warning"),
-                              tr("Download failed: %1.").arg( obHttp->errorString() ) );
+                              tr("Error occured during downloading file:\n%1.").arg( obHttp->errorString() ) );
         delete obFile;
         obFile = 0;
         m_teProcessStep = ST_EXIT;
@@ -770,6 +830,8 @@ void MainWindow::_slotReadResponseHeader(const QHttpResponseHeader &responseHead
                                   tr("Download failed: %1.").arg( responseHeader.reasonPhrase() ) );
             m_httpRequestAborted = true;
             obHttp->abort();
+            m_teProcessStep = ST_EXIT;
+            m_nTimer = startTimer( CONST_PROCESS_STEP_WAIT_MS );
     }
 }
 //=================================================================================================

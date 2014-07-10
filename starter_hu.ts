@@ -37,98 +37,113 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="mainwindow.cpp" line="37"/>
         <source>Start application
 Initialize variables
 </source>
-        <translation>Alkalmazás indítása
+        <translation type="obsolete">Alkalmazás indítása
 Változók inicializálása
 </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="55"/>
         <source>Create XML and Http objects
 </source>
-        <translation>XML és Http objektumok generálása</translation>
+        <translation type="obsolete">XML és Http objektumok generálása</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="68"/>
         <source>Initialize GUI elements
 </source>
-        <translation>GUI elemek inicializálása</translation>
+        <translation type="obsolete">GUI elemek inicializálása</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="98"/>
         <source>End of initialization
 
 </source>
-        <translation>Inicializálás vége
+        <translation type="obsolete">Inicializálás vége
 
 </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="109"/>
         <source>Exiting application ...
 
 </source>
-        <translation>Kilépés az alkalmazásból ...
+        <translation type="obsolete">Kilépés az alkalmazásból ...
 
 </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="135"/>
+        <location filename="mainwindow.cpp" line="144"/>
         <source>Question</source>
         <translation>Kérdés</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="136"/>
+        <location filename="mainwindow.cpp" line="145"/>
         <source>Are you sure you want to abort the process?</source>
         <translation>Biztos benne, hogy meg akarja szakítani a folyamatot?</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="205"/>
+        <location filename="mainwindow.cpp" line="212"/>
+        <source>Parsing info file</source>
+        <translation>Infó állomány feldolgozása</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="221"/>
+        <source>Processing info file</source>
+        <translation>Infó állomány végrehajtása</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="223"/>
+        <location filename="mainwindow.cpp" line="231"/>
         <source>Downloading files ...</source>
         <translation>Állományok letöltése ...</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="213"/>
+        <location filename="mainwindow.cpp" line="239"/>
         <source>Uncompressing downloaded files ...</source>
         <translation>Letöltött állományok kicsomagolása ...</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="221"/>
+        <location filename="mainwindow.cpp" line="247"/>
         <source>Backup selected files ...</source>
         <translation>Kiválasztott állományok archiválása ...</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="229"/>
+        <location filename="mainwindow.cpp" line="255"/>
         <source>Updating files ...</source>
         <translation>Állományok frissítése ...</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="237"/>
+        <location filename="mainwindow.cpp" line="263"/>
         <source>Executing additional processes ...</source>
         <translation>Kijelölt folyamatok végrehajtása ...</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="245"/>
+        <location filename="mainwindow.cpp" line="273"/>
+        <source>Jumping to the next process version ...</source>
+        <translation>Ugrás a következő verzióra ...</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="319"/>
         <source>Finising process ...</source>
         <translation>Fő folyamat befejezése ...</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="246"/>
         <source>Process finished, closing application ...
 </source>
-        <translation>Folyamat vége, alkalmazás bezárás ...
+        <translation type="obsolete">Folyamat vége, alkalmazás bezárás ...
 </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="346"/>
+        <location filename="mainwindow.cpp" line="197"/>
         <source>Download info file ...</source>
         <translation>Infó állomány letöltése ...</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="373"/>
+        <location filename="mainwindow.cpp" line="432"/>
+        <source>Read info file ...</source>
+        <translation>Infó állomány betöltése ...</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="441"/>
         <source>The following file is missing:
 %1
 
@@ -143,12 +158,12 @@ További információkért a folyamatokról, olvassa el az útmutatót
 vagy lépjen kapcsolatba az alkalmazás terjesztőjével.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="385"/>
+        <location filename="mainwindow.cpp" line="456"/>
         <source>Unable to read the following file.%1</source>
         <translation>Nem sikerült beolvasni a következő állományt.%1</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="397"/>
+        <location filename="mainwindow.cpp" line="472"/>
         <source>Error occured during parsing file:
 &apos;%1&apos;
 
@@ -159,12 +174,51 @@ Error in line %2: %3</source>
 Hiba a következő %2 sorban: %3</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="487"/>
+        <location filename="mainwindow.cpp" line="495"/>
+        <source>Parse info file ...</source>
+        <translation>Infó állomány feldolgozása ...</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="582"/>
+        <source>Uncompressing files ...</source>
+        <translation>Állományok kicsomagolása ...</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="672"/>
         <source>Downloading %1</source>
         <translation>%1 állomány letöltése</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="613"/>
+        <location filename="mainwindow.cpp" line="734"/>
+        <source>Uncompressing %1</source>
+        <translation>Kicsomagolás: %1</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="745"/>
+        <source>Error occured when starting process:
+
+%1
+
+Error code: %2
+-2 &gt; Process cannot be started
+-1 &gt; Process crashed</source>
+        <translation>Hiba történt a következő folyamat indításakor:
+
+%1
+
+Hibakód: %2
+-2 &gt; A folyamatot nem lehet elindítani
+-1 &gt; A folyamat váratlan hibával leállt</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="782"/>
+        <source>Error occured during downloading file:
+%1.</source>
+        <translation>Hiba történt a következő állomány letöltésekor:
+%1.</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="848"/>
         <source>%1 at %2</source>
         <translation>%1 - %2</translation>
     </message>
@@ -175,61 +229,57 @@ Hiba a következő %2 sorban: %3</translation>
 </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="164"/>
         <source>Checking environment ...
 </source>
-        <translation>Környezet ellenőrzése ...
+        <translation type="obsolete">Környezet ellenőrzése ...
 </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="167"/>
         <source>Environment check SUCCEEDED
 </source>
-        <translation>Környezet vizsgálat SIKERES
+        <translation type="obsolete">Környezet vizsgálat SIKERES
 </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="189"/>
         <source>Download process XML file
 </source>
-        <translation>XML file letöltése
+        <translation type="obsolete">XML file letöltése
 </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="197"/>
         <source>Read process XML file
 </source>
         <oldsource>Main process finished
 </oldsource>
-        <translation>Process XML beolvasása
+        <translation type="obsolete">Process XML beolvasása
 </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="253"/>
         <source>!!! Uknown process status !!!</source>
-        <translation>!!! Ismeretlen processz státusz !!!</translation>
+        <translation type="obsolete">!!! Ismeretlen processz státusz !!!</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="270"/>
+        <location filename="mainwindow.cpp" line="173"/>
         <source>Checking environment ...</source>
         <translation>Környezet ellenőrzése ...</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="279"/>
-        <location filename="mainwindow.cpp" line="288"/>
-        <location filename="mainwindow.cpp" line="307"/>
-        <location filename="mainwindow.cpp" line="326"/>
-        <location filename="mainwindow.cpp" line="372"/>
-        <location filename="mainwindow.cpp" line="385"/>
-        <location filename="mainwindow.cpp" line="396"/>
-        <location filename="mainwindow.cpp" line="506"/>
-        <location filename="mainwindow.cpp" line="555"/>
-        <location filename="mainwindow.cpp" line="587"/>
+        <location filename="mainwindow.cpp" line="343"/>
+        <location filename="mainwindow.cpp" line="353"/>
+        <location filename="mainwindow.cpp" line="373"/>
+        <location filename="mainwindow.cpp" line="393"/>
+        <location filename="mainwindow.cpp" line="440"/>
+        <location filename="mainwindow.cpp" line="456"/>
+        <location filename="mainwindow.cpp" line="471"/>
+        <location filename="mainwindow.cpp" line="696"/>
+        <location filename="mainwindow.cpp" line="744"/>
+        <location filename="mainwindow.cpp" line="781"/>
+        <location filename="mainwindow.cpp" line="820"/>
         <source>Warning</source>
         <translation>Figyelmeztetés</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="280"/>
+        <location filename="mainwindow.cpp" line="344"/>
         <source>The &apos;settings.ini&apos; file is missing.
 
 Please create the file and fulfill it with proper data.
@@ -242,7 +292,7 @@ További információkért a beállításokról, olvassa el az útmutatót
 vagy lépjen kapcsolatba az alkalmazás terjesztőjével.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="289"/>
+        <location filename="mainwindow.cpp" line="354"/>
         <source>The &apos;settings.ini&apos; file content is corrupt.
 
 Please check the file and fulfill it with proper data.
@@ -291,7 +341,7 @@ Error in line %2: %3</source>
 Hiba a következő %2 sorban: %3</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="507"/>
+        <location filename="mainwindow.cpp" line="697"/>
         <source>Unable to save the file
 
 %1
@@ -304,8 +354,7 @@ Hiba a következő %2 sorban: %3</translation>
 %2.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="556"/>
-        <location filename="mainwindow.cpp" line="588"/>
+        <location filename="mainwindow.cpp" line="821"/>
         <source>Download failed: %1.</source>
         <translation>Letöltés sikertelen volt: %1.</translation>
     </message>
@@ -322,7 +371,7 @@ További információkért a folyamatokról, olvassa el az útmutatót
 vagy lépjen kapcsolatba az alkalmazás terjesztőjével.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="308"/>
+        <location filename="mainwindow.cpp" line="374"/>
         <source>The &apos;backup&apos; directory not exists and can not be created.
 
 Please create the backup directory in the home directoryof this application and restart it again.</source>
@@ -331,7 +380,7 @@ Please create the backup directory in the home directoryof this application and 
 Kérem hozza létre a könyvtárat ennek az alkalmazásnak a kezdő könyvtárában és indítsa újra az alkalmazást.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="327"/>
+        <location filename="mainwindow.cpp" line="394"/>
         <source>The &apos;download&apos; directory not exists and can not be created.
 
 Please create the backup directory in the home directoryof this application and restart it again.</source>
@@ -345,7 +394,7 @@ Kérem hozza létre a könyvtárat ennek az alkalmazásnak a kezdő könyvtárá
         <translation>Alkalmazás indító</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="119"/>
+        <location filename="mainwindow.ui" line="125"/>
         <source>...</source>
         <translation>...</translation>
     </message>

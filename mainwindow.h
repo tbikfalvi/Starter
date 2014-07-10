@@ -85,6 +85,7 @@ private:
     void            _executeVersionProcess();
     void            _parseProcessXMLVersionDownload();
     void            _downloadFiles();
+    void            _uncompressFiles();
 
     void            _progressInit( int p_nMax = 100, QString p_qsText = "" );
     void            _progressValue( int p_nValue );
@@ -93,6 +94,7 @@ private:
     void            _progressText( QString p_qsText = "" );
 
     bool            _downloadFile( QString p_qsFileName );
+    bool            _uncompressFile( QString p_qsFileName );
 
     void            _log( QString p_qsLogMessage );
 };
