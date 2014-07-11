@@ -49,6 +49,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     m_qsVersion         = "1.0.0";
     m_nVersion          = -1;
     m_nTimerMs          = CONST_PROCESS_STEP_WAIT_MS;
+    m_qsPostProcessPath = "";
+    m_qsPostProcessFile = "";
 
     m_teProcessStep     = ST_CHECK_ENVIRONMENT;
 
@@ -306,6 +308,10 @@ void MainWindow::timerEvent(QTimerEvent *)
         {
             _progressStep();
             close();
+            if( m_qsPostProcessFile.length() > 0 )
+            {
+                _executeApp( m_qsPostProcessPath, m_qsPostProcessFile, "", true );
+            }
             m_teProcessStep = ST_WAIT;
             break;
         }
@@ -725,9 +731,11 @@ bool MainWindow::_readSettings()
 {
     QSettings  obPrefFile( "settings.ini", QSettings::IniFormat );
 
-    m_qsVersion             = obPrefFile.value( QString::fromAscii( "PreProcess/Version" ), "1.0.0" ).toString();
-    m_qsDownloadAddress     = obPrefFile.value( QString::fromAscii( "PreProcess/Address" ), "" ).toString();
-    m_qsProcessFile         = obPrefFile.value( QString::fromAscii( "PreProcess/InfoFile" ), "" ).toString();
+    m_qsVersion         = obPrefFile.value( QString::fromAscii( "PreProcess/Version" ), "1.0.0" ).toString();
+    m_qsDownloadAddress = obPrefFile.value( QString::fromAscii( "PreProcess/Address" ), "" ).toString();
+    m_qsProcessFile     = obPrefFile.value( QString::fromAscii( "PreProcess/InfoFile" ), "" ).toString();
+    m_qsPostProcessPath = obPrefFile.value( QString::fromAscii( "PostProcess/HomeDir" ), "" ).toString();
+    m_qsPostProcessFile = obPrefFile.value( QString::fromAscii( "PostProcess/File" ), "" ).toString();
 
     return true;
 }
@@ -910,7 +918,7 @@ bool MainWindow::_backupFile( QString p_qsBackup, QString p_qsPath, QString p_qs
 //=================================================================================================
 // _executeApp
 //-------------------------------------------------------------------------------------------------
-bool MainWindow::_executeApp( QString p_qsPath, QString p_qsApplication, QString p_qsParameters )
+bool MainWindow::_executeApp( QString p_qsPath, QString p_qsApplication, QString p_qsParameters, bool p_bDetached )
 {
     if( !QDir::setCurrent( p_qsPath ) )
     {
@@ -921,17 +929,40 @@ bool MainWindow::_executeApp( QString p_qsPath, QString p_qsApplication, QString
 
     QString     qsProcess   = QString( "%1 %3" ).arg( p_qsApplication ).arg( p_qsParameters );
     QProcess   *qpExecute   = new QProcess(this);
-    int         nRet        = qpExecute->execute( qsProcess.replace("/","\\") );
 
-    QDir::setCurrent( m_qsCurrentDir );
-
-    if( nRet < 0 )
+    if( p_bDetached )
     {
-        QMessageBox::warning( this, tr("Warning"),
-                              tr("Error occured when starting process:\n\n%1\n\nError code: %2\n"
-                                 "-2 > Process cannot be started\n"
-                                 "-1 > Process crashed").arg(qsProcess).arg(nRet) );
-        return false;
+        bool bRet = qpExecute->startDetached( qsProcess );
+
+        QDir::setCurrent( m_qsCurrentDir );
+
+        if( !bRet )
+        {
+            QMessageBox::warning( this, tr("Warning"),
+                                  tr("Error occured when starting process:\n\n%1\n\nError code: %2\n"
+                                     "0 > The process failed to start.\n"
+                                     "1 > The process crashed some time after starting successfully.\n"
+                                     "2 > The last waitFor...() function timed out.\n"
+                                     "4 > An error occurred when attempting to write to the process.\n"
+                                     "3 > An error occurred when attempting to read from the process.\n"
+                                     "5 > An unknown error occurred.").arg( qsProcess ).arg( qpExecute->error() ) );
+            return false;
+        }
+    }
+    else
+    {
+        int nRet = qpExecute->execute( qsProcess.replace("/","\\") );
+
+        QDir::setCurrent( m_qsCurrentDir );
+
+        if( nRet < 0 )
+        {
+            QMessageBox::warning( this, tr("Warning"),
+                                  tr("Error occured when starting process:\n\n%1\n\nError code: %2\n"
+                                     "-2 > Process cannot be started\n"
+                                     "-1 > Process crashed").arg(qsProcess).arg(nRet) );
+            return false;
+        }
     }
 
     return true;

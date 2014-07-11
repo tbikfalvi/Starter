@@ -68,6 +68,8 @@ private:
     QString          m_qsProcessFile;
     QString          m_qsVersion;
     int              m_nTimerMs;
+    QString          m_qsPostProcessPath;
+    QString          m_qsPostProcessFile;
 
     QStringList      m_qslDownload;
     int              m_nDownload;
@@ -101,7 +103,7 @@ private:
     bool            _downloadFile( QString p_qsFileName );
     bool            _uncompressFile( QString p_qsFileName );
     bool            _backupFile( QString p_qsBackup, QString p_qsPath, QString p_qsDir, QString p_qsFile );
-    bool            _executeApp( QString p_qsPath, QString p_qsApplication, QString p_qsParameters );
+    bool            _executeApp( QString p_qsPath, QString p_qsApplication, QString p_qsParameters, bool p_bDetached = false );
 
     void            _log( QString p_qsLogMessage );
 };
