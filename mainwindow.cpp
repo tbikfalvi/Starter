@@ -28,7 +28,7 @@
 
 //=================================================================================================
 
-#define CONST_PROCESS_STEP_WAIT_MS  1000
+#define CONST_PROCESS_STEP_WAIT_MS  500
 
 //=================================================================================================
 // MainWindow::MainWindow
@@ -48,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     m_nDownload         = 0;
     m_qsVersion         = "1.0.0";
     m_nVersion          = -1;
+    m_nTimerMs          = CONST_PROCESS_STEP_WAIT_MS;
 
     m_teProcessStep     = ST_CHECK_ENVIRONMENT;
 
@@ -91,6 +92,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     }
 
     ui->lblProgressText->setStyleSheet( "QLabel { border-image: url(none); }" );
+
+    _progressInit( 1, tr("Starting process ...") );
+    ui->progressBar->setVisible( true );
 
     //---------------------------------------------------------------
     // Start the application process with the timer
@@ -170,6 +174,7 @@ void MainWindow::timerEvent(QTimerEvent *)
         // Check environment
         case ST_CHECK_ENVIRONMENT:
         {
+            m_teProcessStep = ST_WAIT;
             _progressInit( 3, tr("Checking environment ...") );
             if( _checkEnvironment() )
             {
@@ -194,6 +199,7 @@ void MainWindow::timerEvent(QTimerEvent *)
         // Download info file
         case ST_GET_INFO_FILE:
         {
+            m_teProcessStep = ST_WAIT;
             _progressInit( 5, tr("Download info file ...") );
             _downloadProcessXML();
             break;
@@ -202,6 +208,7 @@ void MainWindow::timerEvent(QTimerEvent *)
         //
         case ST_READ_INFO_FILE:
         {
+            m_teProcessStep = ST_WAIT;
             _readProcessXML();
             break;
         }
@@ -209,7 +216,8 @@ void MainWindow::timerEvent(QTimerEvent *)
         //
         case ST_PARSE_INFO_FILE:
         {
-            _progressText( tr("Parsing info file") );
+            m_teProcessStep = ST_WAIT;
+            _progressText( tr("Parsing info file ...") );
             _parseProcessXMLVersion();
             m_teProcessStep = ST_PROCESS_INFO_FILE;
             break;
@@ -220,15 +228,21 @@ void MainWindow::timerEvent(QTimerEvent *)
         {
             _progressText( tr("Processing info file") );
             _executeVersionProcess();
-            _progressText( tr("Downloading files ...") );
-            _downloadFiles();
+            if( m_nVersion < m_qslVersions.count() )
+            {
+                _progressText( tr("Downloading files ...") );
+                _downloadFiles();
+            }
+            else
+            {
+                m_teProcessStep = ST_EXIT;
+            }
             break;
         }
         //---------------------------------------------------------------------
         //
         case ST_DOWNLOAD_FILES:
         {
-            _progressText( tr("Downloading files ...") );
             _downloadFiles();
             break;
         }
@@ -244,8 +258,8 @@ void MainWindow::timerEvent(QTimerEvent *)
         //
         case ST_BACKUP_FILES:
         {
-            _progressText( tr("Backup selected files ...") );
-            m_teProcessStep = ST_COPY_FILES;
+            _progressText( tr("Archiving defined files ...") );
+            _backupFiles();
             break;
         }
         //---------------------------------------------------------------------
@@ -253,7 +267,7 @@ void MainWindow::timerEvent(QTimerEvent *)
         case ST_COPY_FILES:
         {
             _progressText( tr("Updating files ...") );
-            m_teProcessStep = ST_EXECUTE_APPS;
+            _copyFiles();
             break;
         }
         //---------------------------------------------------------------------
@@ -261,21 +275,22 @@ void MainWindow::timerEvent(QTimerEvent *)
         case ST_EXECUTE_APPS:
         {
             _progressText( tr("Executing additional processes ...") );
-            m_teProcessStep = ST_UPDATE_VERSION_INFO;
+            _executeApps();
             break;
         }
         //---------------------------------------------------------------------
         //
         case ST_UPDATE_VERSION_INFO:
         {
+            m_qsVersion = m_qslVersions.at( m_nVersion ).split("|").at(1);
+
+            QSettings  obPrefFile( "settings.ini", QSettings::IniFormat );
+
+            obPrefFile.setValue( QString::fromAscii( "PreProcess/Version" ), m_qsVersion );
+
             if( m_nVersion+1 < m_qslVersions.count() )
             {
                 _progressText( tr("Jumping to the next process version ...") );
-                m_qsVersion = m_qslVersions.at( m_nVersion ).split("|").at(1);
-
-                QSettings  obPrefFile( "settings.ini", QSettings::IniFormat );
-
-                obPrefFile.setValue( QString::fromAscii( "PreProcess/Version" ), m_qsVersion );
 
                 m_teProcessStep = ST_PROCESS_INFO_FILE;
             }
@@ -291,6 +306,7 @@ void MainWindow::timerEvent(QTimerEvent *)
         {
             _progressStep();
             close();
+            m_teProcessStep = ST_WAIT;
             break;
         }
         //---------------------------------------------------------------------
@@ -492,8 +508,6 @@ void MainWindow::_readProcessXML()
 void MainWindow::_parseProcessXMLVersion()
 //-------------------------------------------------------------------------------------------------
 {
-    _progressInit( 10, tr("Parse info file ...") );
-
     QDomElement     docRoot     = obProcessDoc->documentElement();
     QDomNodeList    obVersions  = docRoot.elementsByTagName( "version" );
 
@@ -581,7 +595,7 @@ void MainWindow::_uncompressFiles()
 {
     m_teProcessStep = ST_WAIT;
 
-    _progressInit( m_qslDownload.size(), tr("Uncompressing files ...") );
+    _progressMax( m_qslDownload.size() );
 
     for( int i=0; i < m_qslDownload.size(); i++ )
     {
@@ -596,6 +610,110 @@ void MainWindow::_uncompressFiles()
         _progressStep();
     }
     m_teProcessStep = ST_BACKUP_FILES;
+}
+//=================================================================================================
+// _backupFiles
+//-------------------------------------------------------------------------------------------------
+void MainWindow::_backupFiles()
+//-------------------------------------------------------------------------------------------------
+{
+    m_teProcessStep = ST_WAIT;
+
+    QDomElement     docRoot = obProcessDoc->documentElement();
+    QDomNodeList    obFiles = docRoot.elementsByTagName( "version" )
+                              .at( m_nVersion ).toElement().elementsByTagName( "backup" )
+                              .at( 0 ).toElement().elementsByTagName( "file" );
+
+    _progressMax( obFiles.count() );
+
+    QString qsBackup = QString( "v_%1/%2" ).arg( m_qsVersion.replace(".","_") ).arg( QDateTime::currentDateTime().toString( "yyyyMMddhhmmss" ) );
+
+    for( int i=0; i<obFiles.count(); i++ )
+    {
+        QString qsPath  = obFiles.at(i).toElement().attribute("path");
+        QString qsDir   = obFiles.at(i).toElement().attribute("directory");
+        QString qsFile  = obFiles.at(i).toElement().attribute("name");
+
+        if( !_backupFile( qsBackup.replace("/","\\"),
+                          qsPath.replace("/","\\"),
+                          qsDir.replace("/","\\"),
+                          qsFile.replace("/","\\") ) )
+        {
+            m_teProcessStep = ST_EXIT;
+            return;
+        }
+        _progressStep();
+    }
+    m_teProcessStep = ST_COPY_FILES;
+}
+//=================================================================================================
+// _copyFiles
+//-------------------------------------------------------------------------------------------------
+void MainWindow::_copyFiles()
+//-------------------------------------------------------------------------------------------------
+{
+    m_teProcessStep = ST_WAIT;
+
+    QDomElement     docRoot = obProcessDoc->documentElement();
+    QDomNodeList    obFiles = docRoot.elementsByTagName( "version" )
+                              .at( m_nVersion ).toElement().elementsByTagName( "update" )
+                              .at( 0 ).toElement().elementsByTagName( "file" );
+
+    _progressMax( obFiles.count() );
+
+    for( int i=0; i<obFiles.count(); i++ )
+    {
+        QString qsSrc   = QString( "%1/download/%2" ).arg( m_qsCurrentDir ).arg( obFiles.at(i).toElement().attribute("src") );
+        QString qsDst   = obFiles.at(i).toElement().attribute("dst");
+
+        qsSrc.replace("/","\\");
+        qsDst.replace("/","\\");
+
+        if( QFile::exists(qsDst) )
+        {
+            QFile::remove(qsDst);
+        }
+
+        if( !QFile::copy( qsSrc, qsDst ) )
+        {
+            QMessageBox::warning( this, tr("Warning"),
+                                  tr("Unable to copy file ...\n\nSource: %1\nDestination: %2").arg( qsSrc ).arg( qsDst ) );
+            m_teProcessStep = ST_EXIT;
+            return;
+        }
+        _progressStep();
+    }
+    m_teProcessStep = ST_EXECUTE_APPS;
+}
+//=================================================================================================
+// _executeApps
+//-------------------------------------------------------------------------------------------------
+void MainWindow::_executeApps()
+//-------------------------------------------------------------------------------------------------
+{
+    m_teProcessStep = ST_WAIT;
+
+    QDomElement     docRoot = obProcessDoc->documentElement();
+    QDomNodeList    obApps = docRoot.elementsByTagName( "version" )
+                              .at( m_nVersion ).toElement().elementsByTagName( "execute" )
+                              .at( 0 ).toElement().elementsByTagName( "application" );
+
+    _progressInit( obApps.count(), tr("Executing additional processes ...") );
+
+    for( int i=0; i<obApps.count(); i++ )
+    {
+        QString qsPath  = obApps.at(i).toElement().attribute("home");
+        QString qsApp   = obApps.at(i).toElement().attribute("name");
+        QString qsParam = obApps.at(i).toElement().attribute("params");
+
+        if( !_executeApp( qsPath, qsApp, qsParam ) )
+        {
+            m_teProcessStep = ST_EXIT;
+            return;
+        }
+        _progressStep();
+    }
+    m_teProcessStep = ST_UPDATE_VERSION_INFO;
 }
 //=================================================================================================
 // _readSettings
@@ -621,7 +739,6 @@ bool MainWindow::_readSettings()
 void MainWindow::_progressInit(int p_nMax, QString p_qsText)
 //-------------------------------------------------------------------------------------------------
 {
-    ui->progressBar->setVisible( true );
     ui->progressBar->setValue( 0 );
     ui->progressBar->setMaximum( p_nMax );
     if( p_qsText.length() > 0 )
@@ -668,6 +785,7 @@ void MainWindow::_progressStep()
 void MainWindow::_progressText(QString p_qsText)
 //-------------------------------------------------------------------------------------------------
 {
+    _log( QString( "%1\n" ).arg( p_qsText ) );
     ui->lblProgressText->setText( p_qsText );
 }
 //=================================================================================================
@@ -745,6 +863,65 @@ bool MainWindow::_uncompressFile(QString p_qsFileName)
     QString     qsProcess       = QString( "\"%1\\pkzip.exe\" -extract -directories=relative -overwrite=all \"%2\"" ).arg( m_qsCurrentDir ).arg( qsFileName );
     QProcess   *qpUncompress    = new QProcess(this);
     int         nRet            = qpUncompress->execute( qsProcess );
+
+    QDir::setCurrent( m_qsCurrentDir );
+
+    if( nRet < 0 )
+    {
+        QMessageBox::warning( this, tr("Warning"),
+                              tr("Error occured when starting process:\n\n%1\n\nError code: %2\n"
+                                 "-2 > Process cannot be started\n"
+                                 "-1 > Process crashed").arg(qsProcess).arg(nRet) );
+        return false;
+    }
+
+    return true;
+}
+//=================================================================================================
+// _backupFile
+//-------------------------------------------------------------------------------------------------
+bool MainWindow::_backupFile( QString p_qsBackup, QString p_qsPath, QString p_qsDir, QString p_qsFile )
+{
+    QString qsSrc = QString("%1/").arg( p_qsPath );
+
+    if( p_qsDir.length() > 0 )
+    {
+        qsSrc.append( p_qsDir );
+        qsSrc.append( "/");
+    }
+    qsSrc.append( p_qsFile );
+
+    QString qsDst = QString( "%1/backup/%2/" ).arg( m_qsCurrentDir ).arg( p_qsBackup );
+
+    if( p_qsDir.length() > 0 )
+    {
+        qsDst.append( p_qsDir );
+        qsDst.append( "/");
+    }
+
+    QDir    qdDst;
+
+    qdDst.mkpath( qsDst );
+    qsDst.append( p_qsFile );
+
+    _log( QString("%1 -> %2\n").arg(qsSrc).arg(qsDst) );
+    return QFile::copy( qsSrc, qsDst );
+}
+//=================================================================================================
+// _executeApp
+//-------------------------------------------------------------------------------------------------
+bool MainWindow::_executeApp( QString p_qsPath, QString p_qsApplication, QString p_qsParameters )
+{
+    if( !QDir::setCurrent( p_qsPath ) )
+    {
+        QMessageBox::warning( this, tr("Warning"),
+                              tr("Unable to change current directory to\n\n%1").arg( p_qsPath ) );
+        return false;
+    }
+
+    QString     qsProcess   = QString( "%1 %3" ).arg( p_qsApplication ).arg( p_qsParameters );
+    QProcess   *qpExecute   = new QProcess(this);
+    int         nRet        = qpExecute->execute( qsProcess.replace("/","\\") );
 
     QDir::setCurrent( m_qsCurrentDir );
 

@@ -7,8 +7,8 @@
         </download>
 
         <backup>
-            <file path="c:/Program Files/belenus" name="belenus.exe" />
-            <file path="c:/Program Files/belenus" name="ReportViewer.exe" />
+            <file path="c:/Program Files/belenus" directory="" name="belenus.exe" />
+            <file path="c:/Program Files/belenus" directory="" name="ReportViewer.exe" />
         </backup>
 
         <update>
@@ -16,23 +16,9 @@
             <file src="ReportViewer.exe" dst="c:/Program Files/belenus/ReportViewer.exe" />
         </update>
 
-    </version>
-
-    <version current="1.2.1" next="1.2.2">
-
-        <download>
-            <file path="http://download.bikfalvi.hu/belenus/BelenusApps_v_1_2_2.zip" uncompress="yes" />
-        </download>
-
-        <backup>
-            <file path="c:/Program Files/belenus" name="belenus.exe" />
-            <file path="c:/Program Files/belenus" name="ReportViewer.exe" />
-        </backup>
-
-        <update>
-            <file src="belenus.exe" dst="c:/Program Files/belenus/belenus.exe" />
-            <file src="ReportViewer.exe" dst="c:/Program Files/belenus/ReportViewer.exe" />
-        </update>
+        <execute>
+            <application home="c:/Program Files/belenus/" name="DBBackup.exe" params="" />
+        </execute>
 
         <directory_check home="c:/Program Files/belenus">
             <directory name="lang">
@@ -58,9 +44,6 @@
             <file name="QtSql4.dll" />
             <file name="ReportViewer.exe" />
         </directory_check>
-
-        <execute>
-        </execute>
 
     </version>
 

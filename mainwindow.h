@@ -37,6 +37,7 @@ public:
     ~MainWindow();
 
     void setProgressTextColor( QString p_qsTextColor );
+    void setTimerIntervall( int p_nTimerMs )            { m_nTimerMs = p_nTimerMs;  }
 
 private slots:
     void on_pbExit_clicked();
@@ -66,6 +67,7 @@ private:
     QString          m_qsDownloadAddress;
     QString          m_qsProcessFile;
     QString          m_qsVersion;
+    int              m_nTimerMs;
 
     QStringList      m_qslDownload;
     int              m_nDownload;
@@ -86,6 +88,9 @@ private:
     void            _parseProcessXMLVersionDownload();
     void            _downloadFiles();
     void            _uncompressFiles();
+    void            _backupFiles();
+    void            _copyFiles();
+    void            _executeApps();
 
     void            _progressInit( int p_nMax = 100, QString p_qsText = "" );
     void            _progressValue( int p_nValue );
@@ -95,6 +100,8 @@ private:
 
     bool            _downloadFile( QString p_qsFileName );
     bool            _uncompressFile( QString p_qsFileName );
+    bool            _backupFile( QString p_qsBackup, QString p_qsPath, QString p_qsDir, QString p_qsFile );
+    bool            _executeApp( QString p_qsPath, QString p_qsApplication, QString p_qsParameters );
 
     void            _log( QString p_qsLogMessage );
 };
