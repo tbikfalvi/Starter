@@ -9,6 +9,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 QT          += core gui xml network
 TARGET       = Starter
 TEMPLATE     = app
+DESTDIR      = ..
 RC_FILE      = starter.rc
 RESOURCES   += starter.qrc
 

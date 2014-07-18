@@ -320,7 +320,6 @@ void MainWindow::timerEvent(QTimerEvent *)
         default:
             ; // do nothing
     }
-
     switch( m_teProcessStep )
     {
         case ST_GET_INFO_FILE:
@@ -927,7 +926,7 @@ bool MainWindow::_executeApp( QString p_qsPath, QString p_qsApplication, QString
         return false;
     }
 
-    QString     qsProcess   = QString( "%1 %3" ).arg( p_qsApplication ).arg( p_qsParameters );
+    QString     qsProcess   = QString( "%1 %2" ).arg( p_qsApplication ).arg( p_qsParameters );
     QProcess   *qpExecute   = new QProcess(this);
 
     if( p_bDetached )
