@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     m_nTimerMs          = CONST_PROCESS_STEP_WAIT_MS;
     m_qsPostProcessPath = "";
     m_qsPostProcessFile = "";
+    m_qsInstallPath     = "";
 
     m_teProcessStep     = ST_CHECK_ENVIRONMENT;
 
@@ -638,11 +639,15 @@ void MainWindow::_backupFiles()
         QString qsPath  = obFiles.at(i).toElement().attribute("path");
         QString qsDir   = obFiles.at(i).toElement().attribute("directory");
         QString qsFile  = obFiles.at(i).toElement().attribute("name");
+        QString qsMove  = obFiles.at(i).toElement().attribute("move");
+
+        qsPath.replace( "%INSTALL_DIR%", m_qsInstallPath );
 
         if( !_backupFile( qsBackup.replace("/","\\"),
                           qsPath.replace("/","\\"),
                           qsDir.replace("/","\\"),
-                          qsFile.replace("/","\\") ) )
+                          qsFile.replace("/","\\"),
+                          qsMove ) )
         {
             m_teProcessStep = ST_EXIT;
             return;
@@ -672,6 +677,7 @@ void MainWindow::_copyFiles()
         QString qsDst   = obFiles.at(i).toElement().attribute("dst");
 
         qsSrc.replace("/","\\");
+        qsDst.replace( "%INSTALL_DIR%", m_qsInstallPath );
         qsDst.replace("/","\\");
 
         if( QFile::exists(qsDst) )
@@ -711,6 +717,9 @@ void MainWindow::_executeApps()
         QString qsApp   = obApps.at(i).toElement().attribute("name");
         QString qsParam = obApps.at(i).toElement().attribute("params");
 
+        qsPath.replace( "%INSTALL_DIR%", m_qsInstallPath );
+        qsParam.replace( "%DOWNLOAD_DIR%", QString( "%1/download" ).arg( m_qsCurrentDir ) );
+
         if( !_executeApp( qsPath, qsApp, qsParam ) )
         {
             m_teProcessStep = ST_EXIT;
@@ -733,6 +742,7 @@ bool MainWindow::_readSettings()
     m_qsVersion         = obPrefFile.value( QString::fromAscii( "PreProcess/Version" ), "1.0.0" ).toString();
     m_qsDownloadAddress = obPrefFile.value( QString::fromAscii( "PreProcess/Address" ), "" ).toString();
     m_qsProcessFile     = obPrefFile.value( QString::fromAscii( "PreProcess/InfoFile" ), "" ).toString();
+    m_qsInstallPath     = obPrefFile.value( QString::fromAscii( "PreProcess/InstallPath" ), "" ).toString();
     m_qsPostProcessPath = obPrefFile.value( QString::fromAscii( "PostProcess/HomeDir" ), "" ).toString();
     m_qsPostProcessFile = obPrefFile.value( QString::fromAscii( "PostProcess/File" ), "" ).toString();
 
@@ -887,7 +897,7 @@ bool MainWindow::_uncompressFile(QString p_qsFileName)
 //=================================================================================================
 // _backupFile
 //-------------------------------------------------------------------------------------------------
-bool MainWindow::_backupFile( QString p_qsBackup, QString p_qsPath, QString p_qsDir, QString p_qsFile )
+bool MainWindow::_backupFile( QString p_qsBackup, QString p_qsPath, QString p_qsDir, QString p_qsFile, QString p_qsMove )
 {
     QString qsSrc = QString("%1/").arg( p_qsPath );
 
@@ -912,7 +922,19 @@ bool MainWindow::_backupFile( QString p_qsBackup, QString p_qsPath, QString p_qs
     qsDst.append( p_qsFile );
 
     _log( QString("%1 -> %2\n").arg(qsSrc).arg(qsDst) );
-    return QFile::copy( qsSrc, qsDst );
+
+    bool bRet = QFile::copy( qsSrc, qsDst );
+
+    if( bRet && p_qsMove.compare("yes") == 0 )
+    {
+        QFile fileSrc;
+
+        fileSrc.setFileName( qsSrc );
+
+        bRet = fileSrc.remove();
+    }
+
+    return bRet;
 }
 //=================================================================================================
 // _executeApp
