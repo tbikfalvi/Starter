@@ -19,6 +19,7 @@ class MainWindow : public QMainWindow
     {
         ST_CHECK_ENVIRONMENT = 0,
         ST_GET_INFO_FILE,
+        ST_DOWNLOAD_INFO_FILE,
         ST_READ_INFO_FILE,
         ST_PARSE_INFO_FILE,
         ST_PROCESS_INFO_FILE,
@@ -71,12 +72,20 @@ private:
     QString          m_qsPostProcessPath;
     QString          m_qsPostProcessFile;
     QString          m_qsInstallPath;
+    QString          m_qsDownloadPath;
+    QString          m_qsBackupPath;
 
     QStringList      m_qslDownload;
     int              m_nDownload;
 
     QStringList      m_qslVersions;
     int              m_nVersion;
+
+    int              m_nCountDownload;
+    int              m_nCountUncompress;
+    int              m_nCountBackup;
+    int              m_nCountUpdate;
+    int              m_nCountExecute;
 
     QDomDocument    *obProcessDoc;
     QHttp           *obHttp;
@@ -88,6 +97,7 @@ private:
     void            _readProcessXML();
     void            _parseProcessXMLVersion();
     void            _executeVersionProcess();
+    void            _parseProcessXMLVersionSteps();
     void            _parseProcessXMLVersionDownload();
     void            _downloadFiles();
     void            _uncompressFiles();
@@ -102,7 +112,7 @@ private:
     void            _progressText( QString p_qsText = "" );
 
     bool            _downloadFile( QString p_qsFileName );
-    bool            _uncompressFile( QString p_qsFileName );
+    bool            _uncompressFile( QString p_qsPath, QString p_qsFileName );
     bool            _backupFile( QString p_qsBackup, QString p_qsPath, QString p_qsDir, QString p_qsFile, QString p_qsMove );
     bool            _executeApp( QString p_qsPath, QString p_qsApplication, QString p_qsParameters, bool p_bDetached = false );
 

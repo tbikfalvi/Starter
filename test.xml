@@ -1,0 +1,25 @@
+<Process>
+
+    <version current="1.0.0" next="1.0.0">
+
+        <download>
+            <file path="http://www.bikfalvi.hu/index.php" uncompress="no" />
+        </download>
+
+        <backup>
+            <file path="c:/Development/Starter" directory="" name="settings.ini" />
+            <file path="c:/Development/Starter" directory="" name="process.xml" />
+        </backup>
+
+        <update>
+
+        </update>
+
+        <execute>
+            <application home="C:/" name="mspaint.exe" params="" />
+            <application home="C:/Windows" name="notepad.exe" params="" />
+        </execute>
+
+    </version>
+
+</Process>
