@@ -1,0 +1,6 @@
+
+This document is created to describe new features and bug fixes for the different versions.
+
+Version 1.0.0
+-------------
+Initial version of application.
