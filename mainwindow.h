@@ -38,7 +38,11 @@ public:
     ~MainWindow();
 
     void setProgressTextColor( QString p_qsTextColor );
-    void setTimerIntervall( int p_nTimerMs )            { m_nTimerMs = p_nTimerMs;  }
+
+    void setTimerIntervall( int p_nTimerMs )            { m_nTimerMs        = p_nTimerMs;       }
+    void setAppHomeDirectory( QString p_qsPathAppHome ) { m_qsPathAppHome   = p_qsPathAppHome;  }
+
+    void init();
 
 private slots:
     void on_pbExit_clicked();
@@ -63,7 +67,7 @@ private:
     bool             m_httpRequestAborted;
     int              m_httpGetId;
 
-    QString          m_qsLang;
+    QString          m_qsPathAppHome;
     QString          m_qsCurrentDir;
     QString          m_qsDownloadAddress;
     QString          m_qsProcessFile;

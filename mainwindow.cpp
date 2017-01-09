@@ -41,8 +41,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
     //---------------------------------------------------------------
     // Initialize the variables
-    m_nTimer            = 0;
-    m_qsLang            = "";
+    m_qsPathAppHome         = "";
+
+    m_nTimer            = 0;                                // Timer for process step set by settings.ini
     m_qsCurrentDir      = QDir::currentPath();
     m_qsProcessFile     = "";
     m_nDownload         = 0;
@@ -105,6 +106,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // Start the application process with the timer
     m_nTimer = startTimer( CONST_PROCESS_STEP_WAIT_MS );
 }
+
 //=================================================================================================
 // MainWindow::~MainWindow
 //-------------------------------------------------------------------------------------------------
@@ -116,6 +118,15 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+//=================================================================================================
+// MainWindow::init
+//-------------------------------------------------------------------------------------------------
+void MainWindow::init()
+{
+
+}
+
 //=================================================================================================
 // setProgressTextColor
 //-------------------------------------------------------------------------------------------------

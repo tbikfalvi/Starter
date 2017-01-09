@@ -1,4 +1,16 @@
-#include "mainwindow.h"
+//=================================================================================================
+//
+// Application starter (c) Pagony Multimedia Studio Bt - 2014
+//
+//=================================================================================================
+//
+// Filename    : mainwindow.cpp
+// AppVersion  : 1.0
+// FileVersion : 1.0
+// Authors     : Bikfalvi Tamas
+//
+//=================================================================================================
+
 #include <QApplication>
 #include <QMessageBox>
 #include <QTranslator>
@@ -7,15 +19,35 @@
 #include <QObject>
 #include <QSettings>
 
+//-------------------------------------------------------------------------------------------------
+
+#include "mainwindow.h"
+
+//-------------------------------------------------------------------------------------------------
+
 QApplication    *apMainApp;
 QTranslator     *poTransSetup;
 QTranslator     *poTransQT;
-QString          g_qsCurrentPath;
 
+//=================================================================================================
 int main(int argc, char *argv[])
+//-------------------------------------------------------------------------------------------------
 {
+    //---------------------------------------------------------------------------------------------
+    // Main application instance
     apMainApp = new QApplication(argc, argv);
 
+    QString m_qsPathAppHome = QDir::currentPath();
+
+    // Remove trailing dir separator
+    m_qsPathAppHome.replace( "\\", "/" );
+    if( m_qsPathAppHome.right(1).compare("/") == 0 )
+    {
+        m_qsPathAppHome = m_qsPathAppHome.left( m_qsPathAppHome.length()-1 );
+    }
+
+    //---------------------------------------------------------------------------------------------
+    // Reading preferences from settings.ini file
     QSettings   obPrefFile( "settings.ini", QSettings::IniFormat );
     QString     qsLangPath  = obPrefFile.value( QString::fromAscii( "Language/Path" ), "" ).toString();
     QString     qsLang      = obPrefFile.value( QString::fromAscii( "Language/Extension" ), "en" ).toString();
@@ -24,20 +56,24 @@ int main(int argc, char *argv[])
     QString     qsTextColor = obPrefFile.value( QString::fromAscii( "Settings/Textcolor" ), "000000" ).toString();
     int         nTimerMs    = obPrefFile.value( QString::fromAscii( "Settings/Timer" ), 500 ).toInt();
 
+    //---------------------------------------------------------------------------------------------
+    // Loading translations based on ini file language settings
     poTransSetup = new QTranslator();
     poTransQT = new QTranslator();
 
-    if( qsLangPath.length() > 0 )
-    {
-        qsLangPath.append( "\\" );
-    }
+    if( qsLangPath.length() > 0 )   {   qsLangPath.append( "/" );  }
 
-    poTransSetup->load( QString("%1\\%2starter_%3.qm").arg(QDir::currentPath()).arg(qsLangPath).arg(qsLang) );
-    poTransQT->load( QString("%1\\%2qt_%3.qm").arg(QDir::currentPath()).arg(qsLangPath).arg(qsLang) );
+    QString qsPathLangApp   = QString("%1/%2starter_%3.qm").arg(m_qsPathAppHome).arg(qsLangPath).arg(qsLang).replace( "\\", "/" ).replace( "//", "/" );
+    QString qsPathLangQt    = QString("%1/%2qt_%3.qm").arg(m_qsPathAppHome).arg(qsLangPath).arg(qsLang).replace( "\\", "/" ).replace( "//", "/" );
+
+    poTransSetup->load( qsPathLangApp );
+    poTransQT->load( qsPathLangQt );
 
     apMainApp->installTranslator( poTransSetup );
     apMainApp->installTranslator( poTransQT );
 
+    //---------------------------------------------------------------------------------------------
+    // Main window instance
     MainWindow wndMain;
 
     wndMain.resize( inWidth, inHeight );
@@ -46,5 +82,9 @@ int main(int argc, char *argv[])
 
     wndMain.show();
 
+    //---------------------------------------------------------------------------------------------
     return apMainApp->exec();
+    //---------------------------------------------------------------------------------------------
 }
+
+//=================================================================================================
