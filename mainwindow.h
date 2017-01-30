@@ -22,15 +22,19 @@ class MainWindow : public QMainWindow
         ST_DOWNLOAD_INFO_FILE,
         ST_READ_INFO_FILE,
         ST_PARSE_INFO_FILE,
-        ST_PROCESS_INFO_FILE,
+        ST_PROCESS_VERSION,
+        ST_PARSE_VERSION_STEP,
+        ST_PROCESS_VERSION_STEP,
         ST_DOWNLOAD_FILES,
         ST_UNCOMPRESS_FILES,
         ST_BACKUP_FILES,
         ST_COPY_FILES,
         ST_EXECUTE_APPS,
+        ST_WAIT_MS,
+        ST_CONFIRM,
         ST_UPDATE_VERSION_INFO,
         ST_EXIT,
-        ST_WAIT
+        ST_SKIP
     };
 
 public:
@@ -63,7 +67,7 @@ private:
 
     teProcessStep    m_teProcessStep;
 
-    int              m_nTimer;
+    int              m_nTimerId;
     bool             m_httpRequestAborted;
     int              m_httpGetId;
 
@@ -83,26 +87,28 @@ private:
     int              m_nDownload;
 
     QStringList      m_qslVersions;
-    int              m_nVersion;
+    int              m_nCountVersion;
 
     int              m_nCountDownload;
     int              m_nCountUncompress;
     int              m_nCountBackup;
     int              m_nCountUpdate;
     int              m_nCountExecute;
+    int              m_nCountVersionStep;
 
     QDomDocument    *obProcessDoc;
+    QDomNodeList     obProcessVersionSteps;
     QHttp           *obHttp;
     QFile           *obFile;
 
     bool            _readSettings();
     bool            _checkEnvironment();
     void            _downloadProcessXML();
-    void            _readProcessXML();
-    void            _parseProcessXMLVersion();
-    void            _executeVersionProcess();
-    void            _parseProcessXMLVersionSteps();
-    void            _parseProcessXMLVersionDownload();
+    bool            _readProcessXML();
+    void            _parseProcessXMLGetVersions();
+    void            _parseProcessXMLGetVersionSteps();
+    void            _parseProcessXMLGetVersionStep();
+    void            _parseProcessXMLGetVersionDownloads();
     void            _downloadFiles();
     void            _uncompressFiles();
     void            _backupFiles();

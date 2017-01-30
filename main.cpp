@@ -79,6 +79,8 @@ int main(int argc, char *argv[])
     wndMain.resize( inWidth, inHeight );
     wndMain.setProgressTextColor( qsTextColor );
     wndMain.setTimerIntervall( nTimerMs );
+    wndMain.setAppHomeDirectory( m_qsPathAppHome );
+    wndMain.init();
 
     wndMain.show();
 
