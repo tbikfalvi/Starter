@@ -2,23 +2,14 @@
 
     <version current="1.0.0" next="1.1.0">
 
+        <execute>
+            <application home="%CURRENT_DIR%" name="cscript" params='messagebox.vbs' />
+        </execute>
+
         <download>
             <file path="http://download.thinkbroadband.com/5MB.zip" />
+            <file path="https://github.com/tbikfalvi/Starter/blob/Code-cleanup/test/background.jpg" />
         </download>
-
-        <backup>
-            <file path="c:/Development/Starter" directory="" name="settings.ini" />
-            <file path="c:/Development/Starter" directory="" name="process.xml" />
-        </backup>
-
-        <update>
-
-        </update>
-
-        <execute>
-            <application home="C:/" name="mspaint.exe" params="" />
-            <application home="C:/Windows" name="notepad.exe" params="" />
-        </execute>
 
     </version>
 

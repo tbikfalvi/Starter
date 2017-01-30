@@ -1,0 +1,1 @@
+x=MsgBox("This is a test message box. The application won't continue, until you click on the OK button.", 0+64, "Test MessageBox")

@@ -38,7 +38,7 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 //-------------------------------------------------------------------------------------------------
 {
-    //_log( "DEBUG: Constructor" );
+    //_log( "DEBUG: Constructor\n" );
     //---------------------------------------------------------------
     // Initialize the variables
     m_qsPathAppHome         = "";                           // Application's home directory
@@ -67,7 +67,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     obProcessDoc    = new QDomDocument( "StarterProcess" );
     obHttp          = new QHttp( this );
 
-    //_log( "DEBUG: Connect http" );
+    //_log( "DEBUG: Connect http\n" );
     // Set Http object preferences
     connect(obHttp, SIGNAL(requestFinished(int, bool)), this, SLOT(_slotHttpRequestFinished(int,bool)));
     connect(obHttp, SIGNAL(dataReadProgress(int, int)), this, SLOT(_slotUpdateDataReadProgress(int, int)));
@@ -97,7 +97,7 @@ MainWindow::~MainWindow()
 //-------------------------------------------------------------------------------------------------
 void MainWindow::init()
 {
-    //_log( "DEBUG: init" );
+    //_log( "DEBUG: init\n" );
     //---------------------------------------------------------------
     // Initialize the GUI
 
@@ -134,7 +134,7 @@ void MainWindow::init()
 
     if( qfFileLogo.exists() )
     {
-        _log( QString("DEBUG: Logo position: (%1)").arg(qsPosition) );
+        _log( QString("DEBUG: Logo position: (%1) - ").arg(qsPosition) );
         ui->lblLogo->setVisible( true );
         ui->lblLogo->setPixmap( QPixmap( qsFile ) );
         ui->lblLogo->setAttribute( Qt::WA_TranslucentBackground );
@@ -175,7 +175,7 @@ void MainWindow::init()
     _progressInit( 1, tr("Starting process ...") );
     ui->progressBar->setVisible( true );
 
-    //_log( "DEBUG: start timer" );
+    //_log( "DEBUG: start timer\n" );
     //---------------------------------------------------------------
     // Start the application process with the timer
     m_nTimerId = startTimer( m_nTimerMs );
@@ -270,6 +270,7 @@ void MainWindow::timerEvent(QTimerEvent *)
             }
             break;
         }
+
         //---------------------------------------------------------------------
         // Download info file
         case ST_GET_INFO_FILE:
@@ -279,6 +280,7 @@ void MainWindow::timerEvent(QTimerEvent *)
             _downloadProcessXML();
             break;
         }
+
         //---------------------------------------------------------------------
         //
         case ST_READ_INFO_FILE:
@@ -294,6 +296,7 @@ void MainWindow::timerEvent(QTimerEvent *)
             }
             break;
         }
+
         //---------------------------------------------------------------------
         //
         case ST_PARSE_INFO_FILE:
@@ -304,6 +307,7 @@ void MainWindow::timerEvent(QTimerEvent *)
             m_teProcessStep = ST_PROCESS_VERSION;
             break;
         }
+
         //---------------------------------------------------------------------
         //
         case ST_PROCESS_VERSION:
@@ -314,6 +318,7 @@ void MainWindow::timerEvent(QTimerEvent *)
             {
                 QString qsCurrentVersion = m_qslVersions.at( m_nCountVersion ).split("|").at(0);
 
+                _log( QString("DEBUG: vCurrent: %1  vStep: %2\n").arg( m_qsVersion ).arg( qsCurrentVersion ) );
                 if( qsCurrentVersion.compare( m_qsVersion ) == 0 )
                 {
                     m_teProcessStep = ST_PARSE_VERSION_STEP;
@@ -329,6 +334,7 @@ void MainWindow::timerEvent(QTimerEvent *)
             }
             break;
         }
+
         //---------------------------------------------------------------------
         //
         case ST_PARSE_VERSION_STEP:
@@ -337,11 +343,13 @@ void MainWindow::timerEvent(QTimerEvent *)
             _parseProcessXMLGetVersionSteps();
             m_teProcessStep = ST_PROCESS_VERSION_STEP;
         }
+
         //---------------------------------------------------------------------
         //
         case ST_PROCESS_VERSION_STEP:
         {
             _progressText( tr("Execute version step ...") );
+            _log( tr("Version step: %1\n").arg( m_nCountVersionStep+1 ) );
             m_nCountVersionStep++;
             if( m_nCountVersionStep < obProcessVersionSteps.count() )
             {
@@ -354,14 +362,15 @@ void MainWindow::timerEvent(QTimerEvent *)
             }
             break;
         }
+
         //---------------------------------------------------------------------
         //
         case ST_DOWNLOAD_FILES:
         {
-            _progressText( tr("Downloading files ...") );
             _downloadFiles();
             break;
         }
+
         //---------------------------------------------------------------------
         //
         case ST_UNCOMPRESS_FILES:
@@ -370,6 +379,7 @@ void MainWindow::timerEvent(QTimerEvent *)
             _uncompressFiles();
             break;
         }
+
         //---------------------------------------------------------------------
         //
         case ST_BACKUP_FILES:
@@ -378,6 +388,7 @@ void MainWindow::timerEvent(QTimerEvent *)
             _backupFiles();
             break;
         }
+
         //---------------------------------------------------------------------
         //
         case ST_COPY_FILES:
@@ -386,6 +397,7 @@ void MainWindow::timerEvent(QTimerEvent *)
             _copyFiles();
             break;
         }
+
         //---------------------------------------------------------------------
         //
         case ST_EXECUTE_APPS:
@@ -394,6 +406,7 @@ void MainWindow::timerEvent(QTimerEvent *)
             _executeApps();
             break;
         }
+
         //---------------------------------------------------------------------
         //
         case ST_UPDATE_VERSION_INFO:
@@ -416,6 +429,7 @@ void MainWindow::timerEvent(QTimerEvent *)
             }
             break;
         }
+
         //---------------------------------------------------------------------
         //
         case ST_EXIT:
@@ -429,11 +443,13 @@ void MainWindow::timerEvent(QTimerEvent *)
             m_teProcessStep = ST_SKIP;
             break;
         }
+
         //---------------------------------------------------------------------
         // Any case that dont need action
         default:
             ; // do nothing
     }
+
     switch( m_teProcessStep )
     {
         case ST_GET_INFO_FILE:
@@ -444,6 +460,7 @@ void MainWindow::timerEvent(QTimerEvent *)
         case ST_PARSE_VERSION_STEP:
         case ST_PROCESS_VERSION_STEP:
         //   ST_DOWNLOAD_FILES - no need for next step; httprequestfinished will call
+        case ST_DOWNLOAD_FILES: // lehet mégis kell, az indításhoz
         case ST_UNCOMPRESS_FILES:
         case ST_BACKUP_FILES:
         case ST_COPY_FILES:
@@ -592,7 +609,7 @@ bool MainWindow::_readProcessXML()
     QString qsFileName = QString("%1/%2").arg( m_qsDownloadPath ).arg( m_qsProcessFile );
     QFile   qfFile( qsFileName );
 
-    _progressInit( 10, tr("Read info file ... %1").arg( qsFileName ) );
+    _progressInit( 3, tr("Read info file ... %1").arg( qsFileName ) );
 
     if( !qfFile.exists() )
     {
@@ -646,14 +663,13 @@ void MainWindow::_parseProcessXMLGetVersions()
     QDomElement     docRoot     = obProcessDoc->documentElement();
     QDomNodeList    obVersions  = docRoot.elementsByTagName( "version" );
 
-    _progressMax( obVersions.count() );
+    _log( tr( "Number of version steps: %1" ).arg( obVersions.count() ) );
 
     for( int i=0; i<obVersions.count(); i++ )
     {
         m_qslVersions << QString("%1|%2")
                                 .arg( obVersions.at(i).toElement().attribute("current") )
                                 .arg( obVersions.at(i).toElement().attribute("next") );
-        _progressStep();
     }
 
     m_nCountVersion = -1;
@@ -670,6 +686,8 @@ void MainWindow::_parseProcessXMLGetVersionSteps()
 
     obProcessVersionSteps   = docRoot.elementsByTagName( "version" ).at( m_nCountVersion ).childNodes();
     m_nCountVersionStep     = -1;
+
+    _log( QString( "DEBUG: Versionsteps count: %1\n" ).arg( obProcessVersionSteps.count() ) );
     /*
     _log( QString( "Steps for version: %1\n" ).arg( docRoot.elementsByTagName( "version" ).at( m_nCountVersion ).toElement().attribute("current") ) );
     for( int i=0; i<obProcessVersionSteps.count(); i++ )
@@ -687,6 +705,8 @@ void MainWindow::_parseProcessXMLGetVersionSteps()
 void MainWindow::_parseProcessXMLGetVersionStep()
 {
     QString qsVersionStep = obProcessVersionSteps.at( m_nCountVersionStep ).toElement().nodeName();
+
+    _log( QString( "DEBUG: VersionStep: %1\n" ).arg( qsVersionStep ) );
 
     if( qsVersionStep.compare( "download" ) == 0 )
     {
@@ -715,8 +735,10 @@ void MainWindow::_parseProcessXMLGetVersionDownloads()
                               .at( m_nCountVersion ).toElement().elementsByTagName( "download" )
                               .at( 0 ).toElement().elementsByTagName( "file" );
 
+    _log( "DEBUG: download files:\n" );
     for( int i=0; i<obFiles.count(); i++ )
     {
+        _log( QString( "%1\n" ).arg( obFiles.at(i).toElement().attribute("path") ) );
         m_qslDownload << obFiles.at(i).toElement().attribute("path");
     }
 }
@@ -883,9 +905,10 @@ void MainWindow::_executeApps()
 
     for( int i=0; i<obApps.count(); i++ )
     {
-        QString qsPath  = obApps.at(i).toElement().attribute("home");
-        QString qsApp   = obApps.at(i).toElement().attribute("name");
-        QString qsParam = obApps.at(i).toElement().attribute("params");
+        QString qsPath      = obApps.at(i).toElement().attribute("home");
+        QString qsApp       = obApps.at(i).toElement().attribute("name");
+        QString qsParam     = obApps.at(i).toElement().attribute("params");
+        QString qsDetached  = obApps.at(i).toElement().attribute("detached");
 
         qsPath.replace( "%INSTALL_DIR%", m_qsInstallPath );
         qsPath.replace( "%DOWNLOAD_DIR%", m_qsDownloadPath );
@@ -897,7 +920,14 @@ void MainWindow::_executeApps()
         qsParam.replace( "%BACKUP_DIR%", m_qsBackupPath );
         qsParam.replace( "%CURRENT_DIR%", m_qsPathAppHome );
 
-        if( !_executeApp( qsPath, qsApp, qsParam ) )
+        bool bDetached = false;
+
+        if( qsDetached.compare("true") == 0 )
+        {
+            bDetached = true;
+        }
+
+        if( !_executeApp( qsPath, qsApp, qsParam, bDetached ) )
         {
             m_teProcessStep = ST_EXIT;
             return;
@@ -1241,7 +1271,7 @@ void MainWindow::_slotHttpRequestFinished(int requestId, bool error)
         m_teProcessStep = ST_DOWNLOAD_FILES;
     }
 
-    _log( QString("Downloading file finished. Next: %1\n").arg( m_teProcessStep ) );
+    _log( QString("DEBUG: Downloading file finished. Next: %1\n").arg( m_teProcessStep ) );
 
     m_nTimerId = startTimer( m_nTimerMs );
 }
