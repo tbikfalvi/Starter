@@ -3,12 +3,12 @@
     <version current="1.0.0" next="1.1.0">
 
         <execute>
-            <application home="%CURRENT_DIR%" name="cscript" params='messagebox.vbs' />
+            <application home="%CURRENT_DIR%" name="notepad.exe" params='settings.ini' detached="true" />
+            <application home="%CURRENT_DIR%" name="cscript" params='messagebox.vbs' detached="false" />
         </execute>
 
         <download>
-            <file path="http://download.thinkbroadband.com/5MB.zip" />
-            <file path="https://github.com/tbikfalvi/Starter/blob/Code-cleanup/test/background.jpg" />
+            <file path="http://index.hu/assets/images/logo.png" />
         </download>
 
     </version>
