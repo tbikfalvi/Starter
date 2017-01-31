@@ -1,0 +1,8 @@
+
+Version 1.0.0
+-------------
+Basic functionalities with defined order of commands. Can download, backup, update files, execute applications.
+
+Version 2.0.0
+-------------
+The different steps can be executed in various order, based on the order in the process info file.
