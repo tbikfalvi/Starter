@@ -55,6 +55,7 @@ int main(int argc, char *argv[])
     int         inHeight    = obPrefFile.value( QString::fromAscii( "Settings/WindowHeight" ), 400 ).toInt();
     QString     qsTextColor = obPrefFile.value( QString::fromAscii( "Settings/Textcolor" ), "000000" ).toString();
     int         nTimerMs    = obPrefFile.value( QString::fromAscii( "Settings/Timer" ), 500 ).toInt();
+    bool        bDebug      = obPrefFile.value( QString::fromAscii( "DebugEnabled" ), false ).toBool();
 
     //---------------------------------------------------------------------------------------------
     // Loading translations based on ini file language settings
@@ -76,6 +77,7 @@ int main(int argc, char *argv[])
     // Main window instance
     MainWindow wndMain;
 
+    wndMain.setDebugEnabled( bDebug );
     wndMain.resize( inWidth, inHeight );
     wndMain.setProgressTextColor( qsTextColor );
     wndMain.setTimerIntervall( nTimerMs );

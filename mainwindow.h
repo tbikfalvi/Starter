@@ -42,10 +42,9 @@ public:
     ~MainWindow();
 
     void setProgressTextColor( QString p_qsTextColor );
-
     void setTimerIntervall( int p_nTimerMs )            { m_nTimerMs        = p_nTimerMs;       }
     void setAppHomeDirectory( QString p_qsPathAppHome ) { m_qsPathAppHome   = p_qsPathAppHome;  }
-
+    void setDebugEnabled( bool p_bEnabled = false )     { m_bDebugEnabled   = p_bEnabled;       }
     void init();
 
 private slots:
@@ -70,6 +69,7 @@ private:
     int              m_nTimerId;
     bool             m_httpRequestAborted;
     int              m_httpGetId;
+    bool             m_bDebugEnabled;
 
     QString          m_qsPathAppHome;
     QString          m_qsCurrentDir;
@@ -95,6 +95,9 @@ private:
     int              m_nCountUpdate;
     int              m_nCountExecute;
     int              m_nCountVersionStep;
+    int              m_nMaxProcessSteps;
+    int              m_nCounterWaitMs;
+    int              m_nCounterWaitMax;
 
     QDomDocument    *obProcessDoc;
     QDomNodeList     obProcessVersionSteps;
@@ -109,6 +112,7 @@ private:
     void            _parseProcessXMLGetVersionSteps();
     void            _parseProcessXMLGetVersionStep();
     void            _parseProcessXMLGetVersionDownloads();
+    void            _initWaitProcess();
     void            _downloadFiles();
     void            _uncompressFiles();
     void            _backupFiles();
@@ -119,6 +123,9 @@ private:
     void            _progressValue( int p_nValue );
     void            _progressMax( int p_nValue );
     void            _progressStep();
+    void            _progressMainValue( int p_nValue );
+    void            _progressMainMax( int p_nValue );
+    void            _progressMainStep();
     void            _progressText( QString p_qsText = "" );
 
     bool            _downloadFile( QString p_qsFileName );
@@ -127,6 +134,7 @@ private:
     bool            _executeApp( QString p_qsPath, QString p_qsApplication, QString p_qsParameters, bool p_bDetached = false );
 
     void            _log( QString p_qsLogMessage );
+    void            _debug( QString p_qsLogMessage );
 };
 
 #endif // MAINWINDOW_H
