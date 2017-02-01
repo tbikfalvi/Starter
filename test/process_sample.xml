@@ -1,16 +1,62 @@
 <Process>
-
-    <version current="1.0.0" next="1.1.0">
+    
+    <version current="1.0.0" next="1.2.0">
 
         <execute>
-            <application home="%CURRENT_DIR%" name="notepad.exe" params='settings.ini' detached="true" />
             <application home="%CURRENT_DIR%" name="cscript" params='messagebox.vbs' detached="false" />
         </execute>
 
         <download>
             <file path="http://index.hu/assets/images/logo.png" />
+            <file path="http://download.bikfalvi.hu/test/smiley_meter_1.png" />
         </download>
+        
+        <update>
+            <file src="c:/Windows/System32/cmd.exe" dst="%INSTALL_DIR%/command_line.exe" />
+        </update>
+        
+        <backup>            
+            <file path="%CURRENT_DIR%" directory="" name="settings.ini" move="no" />            
+            <file path="%DOWNLOAD_DIR%" directory="" name="process_sample.xml" move="no" />
+            <file path="%INSTALL_DIR%" directory="" name="command_line.exe" move="yes" />
+        </backup>
+        
+        <execute>
+            <application home="%CURRENT_DIR%" name="notepad.exe" params='settings.ini' detached="true" />
+        </execute>
 
+        <download>
+            <file path="http://download.bikfalvi.hu/test/test_1.zip" />
+        </download>
+        
+        <wait seconds="5" />
+    
+        <uncompress>
+            <file path="%DOWNLOAD_DIR%" name="test_1.zip" />
+        </uncompress>
+
+        <execute>
+            <application home="%CURRENT_DIR%" name="cscript" params='messagebox.vbs' detached="false" />
+        </execute>
+
+    </version>
+    
+    <version current="1.1.10" next="1.2.0">
+
+        <wait seconds="3" />
+    
+    </version>
+
+    <version current="1.2.0" next="1.3.0">
+        
+        <execute>
+            <application home="%CURRENT_DIR%" name="cmd" params='/c dir > dir_list.txt' detached="true" />
+        </execute>
+    
+        <backup>            
+            <file path="%CURRENT_DIR%" directory="" name="dir_list.txt" move="yes" />            
+        </backup>
+        
     </version>
 
 </Process>

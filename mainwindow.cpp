@@ -57,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     m_nTimerMs              = CONST_PROCESS_STEP_WAIT_MS;   // Timer for process step set by settings.ini
     m_nTimerId              = 0;                            // Unique identifier for timer
     m_teProcessStep         = ST_CHECK_ENVIRONMENT;         // Current process step identifier
-    m_nMaxProcessSteps      = 1000;                         // Maximum number of steps executed during the whole process
+    m_nMaxProcessSteps      = 100;                          // Maximum number of steps executed during the whole process
 
     //---------------------------------------------------------------
     // Initialize the GUI
@@ -259,7 +259,7 @@ void MainWindow::timerEvent(QTimerEvent *)
         case ST_CHECK_ENVIRONMENT:
         {
             m_teProcessStep = ST_SKIP;
-            _progressInit( 3, tr("Checking environment ...") );
+            _progressInit( 3, tr("Initialization ...") );
             if( _checkEnvironment() )
             {
                 if( m_qsDownloadAddress.length() > 0 && m_qsProcessFile.length() > 0 )
@@ -285,8 +285,10 @@ void MainWindow::timerEvent(QTimerEvent *)
         case ST_GET_INFO_FILE:
         {
             m_teProcessStep = ST_DOWNLOAD_INFO_FILE;
-            _progressInit( 10, tr("Download info file ...") );
+            _progressValue( 0 );
+            _progressMax( 5 );
             _downloadProcessXML();
+            _progressStep();
             break;
         }
 
@@ -295,7 +297,8 @@ void MainWindow::timerEvent(QTimerEvent *)
         case ST_READ_INFO_FILE:
         {
             m_teProcessStep = ST_SKIP;
-            _progressInit( 3, tr("Read process file ...") );
+            _progressValue( 0 );
+            _progressMax( 3 );
             if( _readProcessXML() )
             {
                 m_teProcessStep = ST_PARSE_INFO_FILE;
@@ -312,7 +315,6 @@ void MainWindow::timerEvent(QTimerEvent *)
         case ST_PARSE_INFO_FILE:
         {
             m_teProcessStep = ST_SKIP;
-            _progressText( tr("Parsing info file ...") );
             _parseProcessXMLGetVersions();
             m_teProcessStep = ST_PROCESS_VERSION;
             break;
@@ -471,6 +473,11 @@ void MainWindow::timerEvent(QTimerEvent *)
         // Any case that dont need action
         default:
             ; // do nothing
+    }
+
+    if( m_teProcessStep != ST_WAIT_MS )
+    {
+        _progressMainStep();
     }
 
     switch( m_teProcessStep )
