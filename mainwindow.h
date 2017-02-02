@@ -99,6 +99,8 @@ private:
     int              m_nCounterWaitMs;
     int              m_nCounterWaitMax;
 
+    QStringList      m_qslVersionSteps;
+
     QDomDocument    *obProcessDoc;
     QDomNodeList     obProcessVersionSteps;
     QHttp           *obHttp;
@@ -123,9 +125,9 @@ private:
     void            _progressValue( int p_nValue );
     void            _progressMax( int p_nValue );
     void            _progressStep();
-    void            _progressMainValue( int p_nValue );
+    void            _progressMainValue(int p_nValue , int nLine);
     void            _progressMainMax( int p_nValue );
-    void            _progressMainStep();
+    void            _progressMainStep(int nLine);
     void            _progressText( QString p_qsText = "" );
 
     bool            _downloadFile( QString p_qsFileName );
@@ -135,6 +137,7 @@ private:
 
     void            _log( QString p_qsLogMessage );
     void            _debug( QString p_qsLogMessage );
+    QString         _stepStr( teProcessStep p_teProcessStep );
 };
 
 #endif // MAINWINDOW_H
