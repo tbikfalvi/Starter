@@ -18,6 +18,10 @@ class MainWindow : public QMainWindow
     enum teProcessStep
     {
         ST_CHECK_ENVIRONMENT = 0,
+        ST_CHECK_STARTER_VERSION,
+        ST_DOWNLOAD_VERSION_FILE,
+        ST_READ_VERSION_FILE,
+        ST_RETRIEVE_INFO_FILE,
         ST_GET_INFO_FILE,
         ST_DOWNLOAD_INFO_FILE,
         ST_READ_INFO_FILE,
@@ -45,6 +49,7 @@ public:
     void setTimerIntervall( int p_nTimerMs )            { m_nTimerMs        = p_nTimerMs;       }
     void setAppHomeDirectory( QString p_qsPathAppHome ) { m_qsPathAppHome   = p_qsPathAppHome;  }
     void setDebugEnabled( bool p_bEnabled = false )     { m_bDebugEnabled   = p_bEnabled;       }
+    void updateNeeded( bool p_bUpdate = false )         { m_bUpdateNeeded   = p_bUpdate;        }
     void init();
 
 private slots:
@@ -70,7 +75,9 @@ private:
     bool             m_httpRequestAborted;
     int              m_httpGetId;
     bool             m_bDebugEnabled;
+    bool             m_bUpdateNeeded;
 
+    QString          m_qsAppName;
     QString          m_qsPathAppHome;
     QString          m_qsCurrentDir;
     QString          m_qsDownloadAddress;
@@ -108,6 +115,8 @@ private:
 
     bool            _readSettings();
     bool            _checkEnvironment();
+    void            _downloadAppVersion();
+    bool            _readAppVersion();
     void            _downloadProcessXML();
     bool            _readProcessXML();
     void            _parseProcessXMLGetVersions();

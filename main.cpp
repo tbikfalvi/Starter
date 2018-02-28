@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
     //---------------------------------------------------------------------------------------------
     // Reading preferences from settings.ini file
     QSettings   obPrefFile( "settings.ini", QSettings::IniFormat );
+
     QString     qsLangPath  = obPrefFile.value( QString::fromAscii( "Language/Path" ), "" ).toString();
     QString     qsLang      = obPrefFile.value( QString::fromAscii( "Language/Extension" ), "en" ).toString();
     int         inWidth     = obPrefFile.value( QString::fromAscii( "Settings/WindowWidth" ), 640 ).toInt();
@@ -56,6 +57,10 @@ int main(int argc, char *argv[])
     QString     qsTextColor = obPrefFile.value( QString::fromAscii( "Settings/Textcolor" ), "000000" ).toString();
     int         nTimerMs    = obPrefFile.value( QString::fromAscii( "Settings/Timer" ), 500 ).toInt();
     bool        bDebug      = obPrefFile.value( QString::fromAscii( "DebugEnabled" ), false ).toBool();
+
+    //---------------------------------------------------------------------------------------------
+    // Updating preferences in settings.ini file
+    obPrefFile.setValue( "Settings/AppName", QString( argv[0] ) );
 
     //---------------------------------------------------------------------------------------------
     // Loading translations based on ini file language settings
@@ -83,7 +88,6 @@ int main(int argc, char *argv[])
     wndMain.setTimerIntervall( nTimerMs );
     wndMain.setAppHomeDirectory( m_qsPathAppHome );
     wndMain.init();
-
     wndMain.show();
 
     //---------------------------------------------------------------------------------------------

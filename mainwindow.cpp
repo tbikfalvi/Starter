@@ -29,6 +29,7 @@
 //=================================================================================================
 
 #define CONST_PROCESS_STEP_WAIT_MS  500
+#define VERSION_APP                 "2.0.0"
 
 //=================================================================================================
 // MainWindow::MainWindow
@@ -119,6 +120,13 @@ void MainWindow::init()
     QSettings   obPrefFile( "settings.ini", QSettings::IniFormat );
     QString     qsFile;
 
+    obPrefFile.setValue( "Settings/AppVersion", QString( VERSION_APP ) );
+
+    //---------------------------------------------------------------
+    // Load background image
+    m_qsAppName = obPrefFile.value( QString::fromAscii( "Settings/AppName" ), "Starter.exe"  ).toString();
+    _debug( QString( "Application executeable name: %1\n" ).arg( m_qsAppName ) );
+
     //---------------------------------------------------------------
     // Load background image
     qsFile = obPrefFile.value( QString::fromAscii( "Settings/Background" ), "" ).toString();
@@ -177,7 +185,7 @@ void MainWindow::init()
     }
 
     _log( "----------------------------------------------------------------------\n" );
-    _log( QString("%1 ").arg( QDateTime::currentDateTime().toString( "hh:mm:ss" ) ) );
+    _log( QString("Timestamp of start: %1 ").arg( QDateTime::currentDateTime().toString( "hh:mm:ss" ) ) );
     _progressText( tr("Starting process ...") );
     ui->progressBar->setVisible( true );
     ui->progressBarMain->setVisible( true );
@@ -252,7 +260,7 @@ void MainWindow::timerEvent(QTimerEvent *)
 
     //---------------------------------------------------------------------
     // Execute defined process step
-    _debug( QString( "STEP: %1\n" ).arg( _stepStr( m_teProcessStep ) ) );
+    _debug( QString( "STEP %1\n" ).arg( _stepStr( m_teProcessStep ) ) );
     switch( m_teProcessStep )
     {
         //---------------------------------------------------------------------
@@ -264,25 +272,79 @@ void MainWindow::timerEvent(QTimerEvent *)
             _progressText( tr("Initialization ...") );
             if( _checkEnvironment() )
             {
-                if( m_qsDownloadAddress.length() > 0 && m_qsProcessFile.length() > 0 )
-                {
-                    // The download path and the file name set
-                    m_teProcessStep = ST_GET_INFO_FILE;
-                }
-                else
-                {
-                    // The download path not set the file should be already in download
-                    m_teProcessStep = ST_READ_INFO_FILE;
-                    _progressMainStep(276); // ProgressMainStep 2
-                }
+                m_teProcessStep = ST_CHECK_STARTER_VERSION;
             }
             else
             {
                 m_teProcessStep = ST_EXIT;
             }
-            _progressMainStep(283);
+            _progressMainStep(281);
             break;
         } // ProgressMainStep 1
+
+        //---------------------------------------------------------------------
+        // Check starter version on web if enabled
+        case ST_CHECK_STARTER_VERSION:
+        {
+            m_teProcessStep = ST_SKIP;
+            if( m_qsDownloadAddress.length() > 0 )
+            {
+                _progressText( tr("Check if this application has a newer version ...") );
+                m_teProcessStep = ST_DOWNLOAD_VERSION_FILE;
+                _progressValue( 0 );
+                _progressMax( 5 );
+                _downloadAppVersion();
+            }
+            else
+            {
+                m_teProcessStep = ST_RETRIEVE_INFO_FILE;
+            }
+            _progressStep();
+            _progressMainStep(303);
+            break;
+        }
+
+        //---------------------------------------------------------------------
+        // Check starter version on web if enabled
+        case ST_READ_VERSION_FILE:
+        {
+            m_teProcessStep = ST_SKIP;
+            _progressValue( 0 );
+            _progressMax( 4 );
+            _progressText( tr("Execution ...") );
+            if( _readAppVersion() )
+            {
+                m_teProcessStep = ST_RETRIEVE_INFO_FILE;
+            }
+            else
+            {
+                m_teProcessStep = ST_EXIT;
+            }
+            _progressStep(); // ST_READ_VERSION_FILE 3
+            _progressMainStep(316);
+            break;
+        }
+
+        //---------------------------------------------------------------------
+        // Check starter version on web if enabled
+        case ST_RETRIEVE_INFO_FILE:
+        {
+            m_teProcessStep = ST_SKIP;
+            _progressStep(); // ST_CHECK_ENVIRONMENT 1
+            _progressText( tr("Initialization ...") );
+            if( m_qsDownloadAddress.length() > 0 && m_qsProcessFile.length() > 0 )
+            {
+                // The download path and the file name set
+                m_teProcessStep = ST_GET_INFO_FILE;
+            }
+            else
+            {
+                // The download path not set the file should be already in download
+                m_teProcessStep = ST_READ_INFO_FILE;
+                _progressMainStep(276); // ProgressMainStep 2
+            }
+            break;
+        }
 
         //---------------------------------------------------------------------
         // Download info file
@@ -313,7 +375,7 @@ void MainWindow::timerEvent(QTimerEvent *)
                 m_teProcessStep = ST_EXIT;
             }
             _progressStep(); // ST_READ_INFO_FILE 3
-            _progressMainStep(315);
+            _progressMainStep(316);
             break;
         } // ProgressMainStep 3
 
@@ -325,7 +387,7 @@ void MainWindow::timerEvent(QTimerEvent *)
             _parseProcessXMLGetVersions(); // ST_READ_INFO_FILE 4
             m_teProcessStep = ST_PROCESS_VERSION;
             break;
-            _progressMainStep(327);
+            _progressMainStep(328);
         } // ProgressMainStep 4
 
         //---------------------------------------------------------------------
@@ -346,7 +408,7 @@ void MainWindow::timerEvent(QTimerEvent *)
                 if( qsCurrentVersion.compare( m_qsVersion ) == 0 )
                 {
                     m_teProcessStep = ST_PARSE_VERSION_STEP;
-                    _progressMainStep(360);
+                    _progressMainStep(349);
                 }
                 else
                 {
@@ -468,7 +530,7 @@ void MainWindow::timerEvent(QTimerEvent *)
             if( m_nCounterWaitMs == m_nCounterWaitMax )
             {
                 m_teProcessStep = ST_PROCESS_VERSION_STEP;
-                _progressMainStep(469);
+                _progressMainStep(471);
             }
             break;
         }
@@ -478,7 +540,7 @@ void MainWindow::timerEvent(QTimerEvent *)
         case ST_EXIT:
         {
             _progressStep();
-            _progressMainStep(479);
+            _progressMainStep(481);
             close();
             if( m_qsPostProcessFile.length() > 0 )
             {
@@ -494,17 +556,22 @@ void MainWindow::timerEvent(QTimerEvent *)
             ; // do nothing
     }
 
+    _debug( QString( "NEXSTEP %1\n" ).arg( _stepStr( m_teProcessStep ) ) );
+
     switch( m_teProcessStep )
     {
+        case ST_CHECK_STARTER_VERSION:
         case ST_GET_INFO_FILE:
-        //   ST_DOWNLOAD_INFO_FILE - no need for next step; httprequestfinished will call
+        //   ST_DOWNLOAD_INFO_FILE      - no need for next step; httprequestfinished will call
+        //   ST_DOWNLOAD_VERSION_FILE   - no need for next step; httprequestfinished will call
+        case ST_RETRIEVE_INFO_FILE:
         case ST_READ_INFO_FILE:
         case ST_PARSE_INFO_FILE:
         case ST_PROCESS_VERSION:
         case ST_PARSE_VERSION_STEP:
         case ST_PROCESS_VERSION_STEP:
-        //   ST_DOWNLOAD_FILES - no need for next step; httprequestfinished will call
-        case ST_DOWNLOAD_FILES: // lehet mégis kell, az indításhoz
+        //   ST_DOWNLOAD_FILES          - no need for next step; httprequestfinished will call
+        case ST_DOWNLOAD_FILES:        // lehet mégis kell, az indításhoz
         case ST_UNCOMPRESS_FILES:
         case ST_BACKUP_FILES:
         case ST_COPY_FILES:
@@ -543,6 +610,7 @@ bool MainWindow::_checkEnvironment()
     if( !qfFile.exists() )
     {
         m_teProcessStep = ST_SKIP;
+        _log( "ERR: settings.ini not found" );
         QMessageBox::warning( this, tr("Warning"),
                               tr("The 'settings.ini' file is missing.\n\n"
                                  "Please create the file and fulfill it with proper data.\n"
@@ -553,6 +621,7 @@ bool MainWindow::_checkEnvironment()
     if( !_readSettings() )
     {
         m_teProcessStep = ST_SKIP;
+        _log( "ERR: settings.ini content corrupt" );
         QMessageBox::warning( this, tr("Warning"),
                               tr("The 'settings.ini' file content is corrupt.\n\n"
                                  "Please check the file and fulfill it with proper data.\n"
@@ -583,6 +652,7 @@ bool MainWindow::_checkEnvironment()
         if( !qdBackup.mkpath( m_qsBackupPath ) )
         {
             m_teProcessStep = ST_SKIP;
+            _log( QString( "ERR: backup directory |%1| can not be created" ).arg( m_qsBackupPath ) );
             QMessageBox::warning( this, tr("Warning"),
                                   tr("The 'backup' directory not exists and can not be created.\n\n"
                                      "Please create the backup directory in the home directory"
@@ -603,6 +673,7 @@ bool MainWindow::_checkEnvironment()
         if( !qdDownload.mkpath( m_qsDownloadPath ) )
         {
             m_teProcessStep = ST_SKIP;
+            _log( QString( "ERR: download directory |%1| can not be created" ).arg( m_qsDownloadPath ) );
             QMessageBox::warning( this, tr("Warning"),
                                   tr("The 'download' directory not exists and can not be created.\n\n"
                                      "Please create the backup directory in the home directory"
@@ -622,7 +693,34 @@ bool MainWindow::_checkEnvironment()
 
     return true;
 }
+//=================================================================================================
+// _downloadAppVersion
+//-------------------------------------------------------------------------------------------------
+//
+//-------------------------------------------------------------------------------------------------
+void MainWindow::_downloadAppVersion()
+{
+    m_qsDownloadAddress.replace( '\\', '/' );
+    if( m_qsDownloadAddress.right(1).compare("/") == 0 )
+    {
+        m_qsDownloadAddress = m_qsDownloadAddress.left(m_qsDownloadAddress.length()-1);
+    }
 
+    m_qslDownload.clear();
+    m_qslDownload << QString( "%1/version.txt" ).arg( m_qsDownloadAddress );
+    m_nCountDownload = 0;
+    _progressStep(); // ST_DOWNLOAD_VERSION_FILE 1
+    _downloadFile( m_qslDownload.at(m_nCountDownload) ); // ST_DOWNLOAD_VERSION_FILE 2,3,4
+}
+//=================================================================================================
+// _readAppVersion
+//-------------------------------------------------------------------------------------------------
+//
+//-------------------------------------------------------------------------------------------------
+bool MainWindow::_readAppVersion()
+{
+    return true;
+}
 //=================================================================================================
 // _downloadProcessXML
 //-------------------------------------------------------------------------------------------------
@@ -637,6 +735,7 @@ void MainWindow::_downloadProcessXML()
         m_qsDownloadAddress = m_qsDownloadAddress.left(m_qsDownloadAddress.length()-1);
     }
 
+    m_qslDownload.clear();
     m_qslDownload << QString( "%1/%2" ).arg( m_qsDownloadAddress ).arg( m_qsProcessFile );
     m_nCountDownload = 0;
     _progressStep(); // ST_DOWNLOAD_INFO_FILE 1
@@ -659,6 +758,7 @@ bool MainWindow::_readProcessXML()
     if( !qfFile.exists() )
     {
         m_teProcessStep = ST_SKIP;
+        _log( QString( "ERR: |%1| file is missing" ).arg( qsFileName ) );
         QMessageBox::warning( this, tr("Warning"),
                               tr("The following file is missing:\n"
                                  "%1\n\n"
@@ -673,6 +773,7 @@ bool MainWindow::_readProcessXML()
     if( !qfFile.open(QIODevice::ReadOnly) )
     {
         m_teProcessStep = ST_SKIP;
+        _log( QString( "ERR: cannot read |%1| file" ).arg( qsFileName ) );
         QMessageBox::warning( this, tr("Warning"), tr("Unable to read the following file."
                                                       "%1").arg( qsFileName ) );
         return false;
@@ -685,6 +786,8 @@ bool MainWindow::_readProcessXML()
     if( !obProcessDoc->setContent( &qfFile, &qsErrorMsg, &inErrorLine ) )
     {
         m_teProcessStep = ST_SKIP;
+        _log( QString( "ERR: parsing file |%1| failed in line %2" ).arg( qsFileName ).arg( inErrorLine ) );
+        _log( QString( "ERR: |%1|" ).arg( qsErrorMsg ) );
         QMessageBox::warning( this, tr("Warning"),
                               tr( "Error occured during parsing file:\n'%1'\n\nError in line %2: %3" ).arg( qsFileName ).arg( inErrorLine ).arg( qsErrorMsg ) );
         qfFile.close();
@@ -753,7 +856,7 @@ void MainWindow::_parseProcessXMLGetVersions()
     m_nCountVersion = -1;
     _progressStep(); // ST_READ_INFO_FILE 4
     _progressMainMax( m_nMaxProcessSteps + ui->progressBarMain->value()+1 );
-    _progressMainStep(754);
+    _progressMainStep(764);
 }
 
 //=================================================================================================
@@ -893,7 +996,7 @@ void MainWindow::_uncompressFiles()
             return;
         }
         _progressStep();
-        _progressMainStep(894);
+        _progressMainStep(904);
     }
     m_teProcessStep = ST_PROCESS_VERSION_STEP;
 }
@@ -930,10 +1033,11 @@ void MainWindow::_backupFiles()
         if( !_backupFile( qsBackup, qsPath, qsDir, qsFile, qsMove ) )
         {
             m_teProcessStep = ST_EXIT;
+            _log( QString( "ERR: unable to backup |%1| file |%2| -> |%3|" ).arg( qsFile ).arg( qsPath ).arg( qsBackup ) );
             return;
         }
         _progressStep();
-        _progressMainStep(934);
+        _progressMainStep(945);
     }
     m_teProcessStep = ST_PROCESS_VERSION_STEP;
 }
@@ -979,11 +1083,12 @@ void MainWindow::_copyFiles()
         {
             QMessageBox::warning( this, tr("Warning"),
                                   tr("Unable to copy file ...\n\nSource: %1\nDestination: %2").arg( qsSrc ).arg( qsDst ) );
+            _log( QString("ERR: unable to copy file |%1| -> |%2|").arg( qsSrc ).arg( qsDst ) );
             m_teProcessStep = ST_EXIT;
             return;
         }
         _progressStep();
-        _progressMainStep(984);
+        _progressMainStep(996);
     }
     m_teProcessStep = ST_PROCESS_VERSION_STEP;
 }
@@ -1033,7 +1138,7 @@ void MainWindow::_executeApps()
             return;
         }
         _progressStep();
-        _progressMainStep(1034);
+        _progressMainStep(1046);
     }
     m_teProcessStep = ST_PROCESS_VERSION_STEP;
 }
@@ -1162,6 +1267,7 @@ void MainWindow::_progressMainStep( int nLine )
 void MainWindow::_progressText(QString p_qsText)
 //-------------------------------------------------------------------------------------------------
 {
+    _debug( QString( "%1\n" ).arg( p_qsText ) );
     ui->lblProgressText->setText( p_qsText );
 }
 
@@ -1203,6 +1309,8 @@ bool MainWindow::_downloadFile(QString p_qsFileName)
     }
 
     _progressStep();
+
+    _debug( QString( "HTTP mode is %1\n" ).arg( url.scheme().toLower() ) );
 
     QHttp::ConnectionMode mode = url.scheme().toLower() == "https" ? QHttp::ConnectionModeHttps : QHttp::ConnectionModeHttp;
     obHttp->setHost(url.host(), mode, url.port() == -1 ? 0 : url.port());
@@ -1401,7 +1509,11 @@ void MainWindow::_slotHttpRequestFinished(int requestId, bool error)
     delete obFile;
     obFile = 0;
 
-    if( m_teProcessStep == ST_DOWNLOAD_INFO_FILE )
+    if( m_teProcessStep == ST_DOWNLOAD_VERSION_FILE )
+    {
+        m_teProcessStep = ST_READ_VERSION_FILE;
+    }
+    else if( m_teProcessStep == ST_DOWNLOAD_INFO_FILE )
     {
         m_teProcessStep = ST_READ_INFO_FILE;
     }
@@ -1412,7 +1524,7 @@ void MainWindow::_slotHttpRequestFinished(int requestId, bool error)
 
     _debug( QString("Downloading file finished. Next: %1\n").arg( m_teProcessStep ) );
 
-    _progressMainStep(1413);
+    _progressMainStep(1425);
 
     m_nTimerId = startTimer( m_nTimerMs );
 }
@@ -1528,6 +1640,10 @@ QString MainWindow::_stepStr( teProcessStep p_teProcessStep )
     switch( p_teProcessStep )
     {
         case ST_CHECK_ENVIRONMENT:      return "ST_CHECK_ENVIRONMENT Check Env";                                    break;
+        case ST_CHECK_STARTER_VERSION:  return "ST_CHECK_STARTER_VERSION Check App Version";                        break;
+        case ST_DOWNLOAD_VERSION_FILE:  return "ST_DOWNLOAD_VERSION_FILE Download version.txt";                     break;
+        case ST_READ_VERSION_FILE:      return "ST_READ_VERSION_FILE Read version.txt";                             break;
+        case ST_RETRIEVE_INFO_FILE:     return "ST_RETRIEVE_INFO_FILE Read/Get ProcXml";                            break;
         case ST_GET_INFO_FILE:          return "ST_GET_INFO_FILE Download ProcXml";                                 break;
         case ST_DOWNLOAD_INFO_FILE:     return "ST_DOWNLOAD_INFO_FILE Download ProcXml";                            break;
         case ST_READ_INFO_FILE:         return "ST_READ_INFO_FILE Read ProcXml";                                    break;
